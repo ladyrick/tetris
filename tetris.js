@@ -11,12 +11,12 @@ function getClassName(x, y) {
     /*构造一个style节点。屏幕左上角为坐标(0,0)，横向变x，纵向变y。*/
     var style = "";
     for (var i = 0; i < w; i++) {
-        for (var j = 0; j < h; j++) {
+        for (var j = 0; j <= h; j++) {
             style += "." + getClassName(i, j) + "{";
             style += "position:absolute;"
             style += "background-color:black;";
             style += "transition:0.2s;"
-            style += "width:" + (wPixels / w - 4) + "px;height:" + (hPixels / h - 4) + "px;";
+            style += "width:" + (wPixels / w - 4) + "px;height:" + (j === h ? 0 : (hPixels / h - 4)) + "px;";
             style += "margin-left:" + (wPixels / w * i + 2) + "px;margin-top:" + (hPixels / h * j + 2) + "px;}\n";
         }
     }
