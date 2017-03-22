@@ -15,6 +15,7 @@ function getClassName(x, y) {
             style += "." + getClassName(i, j) + "{";
             style += "position:absolute;"
             style += "background-color:black;";
+            style += "transition:0.2s;"
             style += "width:" + (wPixels / w - 4) + "px;height:" + (hPixels / h - 4) + "px;";
             style += "margin-left:" + (wPixels / w * i + 2) + "px;margin-top:" + (hPixels / h * j + 2) + "px;}\n";
         }
@@ -25,6 +26,10 @@ function getClassName(x, y) {
     document.getElementsByTagName("head")[0].appendChild(styleDOM);
 })();
 
+
+
+
+
 function extend(Child, Parent) {
     /*实现原型链继承的函数*/
     var F = function () { };
@@ -32,6 +37,10 @@ function extend(Child, Parent) {
     Child.prototype = new F();
     Child.prototype.constructor = Child;
 }
+
+
+
+
 function Piece(position, shape) {
     var pose = 0;
     Piece.prototype.getPosition = function () {
@@ -50,6 +59,8 @@ function Piece(position, shape) {
         }
         if (newpos[1] < -1) {
             position[1] = -1;
+        } else {
+            position[1] = newpos[1];
         }
     }
     Piece.prototype.getShape = function () {
@@ -67,9 +78,9 @@ function Piece(position, shape) {
 }
 Piece.prototype.getAllPosition = function () {
     var positions = [];
-    var localThis = this;
+    var _this = this;
     this.getShape()[this.getPose()].forEach(function (p) {
-        positions.push([localThis.getPosition()[0] + p[0], localThis.getPosition()[1] + p[1]]);
+        positions.push([_this.getPosition()[0] + p[0], _this.getPosition()[1] + p[1]]);
     });
     return positions;
 }
@@ -80,22 +91,45 @@ Piece.prototype.removePiece = function () {
         })
     }
 }
-Piece.prototype.putPiece = function () {
-    this.removePiece();
+Piece.prototype.updatePiece = function () {
     var positions = this.getAllPosition();
-    this.divs = [];
-    var localThis = this;
-    positions.forEach(function (p) {
-        var newDiv = document.createElement("div");
-        newDiv.setAttribute("class", getClassName(p[0], p[1]));
-        container.appendChild(newDiv);
-        localThis.divs.push(newDiv);
-    })
+    if (this.divs === undefined) {
+        this.divs = [];
+        var _this = this;
+        positions.forEach(function (p) {
+            var newDiv = document.createElement("div");
+            newDiv.setAttribute("class", getClassName(p[0], p[1]));
+            container.appendChild(newDiv);
+            _this.divs.push(newDiv);
+        })
+    } else {
+        for (var i in positions) {
+            this.divs[i].setAttribute("class", getClassName(positions[i][0], positions[i][1]));
+        }
+    }
 }
 Piece.prototype.turn = function () {
     this.changePose();
-    this.putPiece();
+    this.updatePiece();
 }
+Piece.prototype.moveDown = function () {
+    var curPos = this.getPosition();
+    this.setPosition([curPos[0], curPos[1] + 1]);
+    this.updatePiece();
+}
+Piece.prototype.moveLeft = function () {
+    var curPos = this.getPosition();
+    this.setPosition([curPos[0] - 1, curPos[1]]);
+    this.updatePiece();
+}
+Piece.prototype.moveRight = function () {
+    var curPos = this.getPosition();
+    this.setPosition([curPos[0] + 1, curPos[1]]);
+    this.updatePiece();
+}
+
+
+
 
 function PicecLine(pos) {
     var shape = [
@@ -109,5 +143,7 @@ extend(PicecLine, Piece);
 
 
 var p1 = new PicecLine([100, 5]);
-p1.putPiece();
+p1.updatePiece();
 p1.turn();
+//setInterval("p1.moveLeft();",1000);
+setInterval("p1.moveDown();", 1000);
