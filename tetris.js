@@ -69,8 +69,16 @@ function Piece(position, shape) {
     Piece.prototype.getPose = function () {
         return pose;
     }
-    Piece.prototype.changePose = function () {
-        pose = 1 - pose;
+    Piece.prototype.changePose = function (direct) {
+        switch (true) {
+            case direct < 0:
+                pose = (pose + 3) % shape.length;
+                break;
+            case direct > 0:
+                pose = (pose + 1) % shape.length;
+                break;
+            default:
+        }
         this.setPosition(position);
         return pose;
     }
@@ -108,8 +116,12 @@ Piece.prototype.updatePiece = function () {
         }
     }
 }
-Piece.prototype.turn = function () {
-    this.changePose();
+Piece.prototype.turnLeft = function () {
+    this.changePose(-1);
+    this.updatePiece();
+}
+Piece.prototype.turnRight = function () {
+    this.changePose(1);
     this.updatePiece();
 }
 Piece.prototype.moveDown = function () {
@@ -144,6 +156,9 @@ extend(PicecLine, Piece);
 
 var p1 = new PicecLine([100, 5]);
 p1.updatePiece();
-p1.turn();
-//setInterval("p1.moveLeft();",1000);
-setInterval("p1.moveDown();", 1000);
+setTimeout(function () {
+    p1.turnLeft();
+    setInterval(function () {
+        p1.moveDown();
+    }, 1000);
+}, 1000);
