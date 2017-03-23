@@ -303,9 +303,10 @@ function getRotatedShape(oneShape) {
     var temp = oneShape;
     allShape[0] = temp.slice();
     for (var i = 1; i < 4; i++) {
-        var xMin, yMax;
+        var xMin = undefined;
+        var yMax = undefined;
         for (var j = 0; j < temp.length; j++) {
-            temp[j] = [temp[j][1], -temp[j][0]];
+            temp[j] = [-temp[j][1], temp[j][0]];
             if (xMin === undefined || xMin > temp[j][0]) {
                 xMin = temp[j][0];
             }
@@ -313,12 +314,12 @@ function getRotatedShape(oneShape) {
                 yMax = temp[j][1];
             }
         }
-        if (xMin < 0) {
+        if (xMin !== 0) {
             for (var j = 0; j < temp.length; j++) {
                 temp[j][0] -= xMin;
             }
         }
-        if (yMax > 0) {
+        if (yMax !== 0) {
             for (var j = 0; j < temp.length; j++) {
                 temp[j][1] -= yMax;
             }
@@ -329,69 +330,43 @@ function getRotatedShape(oneShape) {
 }
 
 function PieceLine(position, pose) {
-    var shape = [
-        [[0, 0], [1, 0], [2, 0], [3, 0]],
-        [[0, 0], [0, -1], [0, -2], [0, -3]]
-    ];
+    var shape = getRotatedShape([[0, 0], [1, 0], [2, 0], [3, 0]]);
     Piece.call(this, position, shape, pose);
 }
 extend(PieceLine, Piece);
 
 function PieceT(position, pose) {
-    var shape = [
-        [[0, 0], [1, 0], [2, 0], [1, -1]],
-        [[0, -1], [1, 0], [1, -1], [1, -2]],
-        [[0, -1], [1, 0], [1, -1], [2, -1]],
-        [[0, 0], [0, -1], [0, -2], [1, -1]]
-    ];
+    var shape = getRotatedShape([[0, 0], [1, 0], [2, 0], [1, -1]]);
     Piece.call(this, position, shape, pose);
 }
 extend(PieceT, Piece);
 
 function PieceLLeft(position, pose) {
-    var shape = [
-        [[0, 0], [1, 0], [0, -1], [0, -2]],
-        [[0, 0], [1, 0], [2, 0], [2, -1]],
-        [[0, -2], [1, -2], [1, -1], [1, 0]],
-        [[0, 0], [0, -1], [1, -1], [2, -1]]
-    ];
+    var shape = getRotatedShape([[0, 0], [1, 0], [0, -1], [0, -2]]);
     Piece.call(this, position, shape, pose);
 }
 extend(PieceLLeft, Piece);
 
 function PieceLRight(position, pose) {
-    var shape = [
-        [[0, 0], [1, 0], [1, -1], [1, -2]],
-        [[0, -1], [1, -1], [2, -1], [2, 0]],
-        [[0, 0], [0, -1], [0, -2], [1, -2]],
-        [[0, 0], [0, -1], [1, 0], [2, 0]]
-    ];
+    var shape = getRotatedShape([[0, 0], [1, 0], [1, -1], [1, -2]]);
     Piece.call(this, position, shape, pose);
 }
 extend(PieceLRight, Piece);
 
 function PieceZLeft(position, pose) {
-    var shape = [
-        [[0, -1], [1, -1], [1, 0], [2, 0]],
-        [[0, 0], [0, -1], [1, -1], [1, -2]]
-    ];
+    var shape = getRotatedShape([[0, -1], [1, -1], [1, 0], [2, 0]]);
     Piece.call(this, position, shape, pose);
 }
 extend(PieceZLeft, Piece);
 
 function PieceZRight(position, pose) {
-    var shape = [
-        [[0, 0], [1, 0], [1, -1], [2, -1]],
-        [[1, 0], [1, -1], [0, -1], [0, -2]]
-    ];
+    var shape = getRotatedShape([[0, 0], [1, 0], [1, -1], [2, -1]]);
     Piece.call(this, position, shape, pose);
 }
 extend(PieceZRight, Piece);
 
 function PieceBlock(position, pose) {
-    var shape = [
-        [[0, 0], [1, 0], [1, -1], [0, -1]]
-    ];
+    var shape = getRotatedShape([[0, 0], [1, 0], [1, -1], [0, -1]]);
     Piece.call(this, position, shape, pose);
 }
 extend(PieceBlock, Piece);
