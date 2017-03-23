@@ -94,20 +94,39 @@ function Piece(position, shape, pose) {
                 break;
             default:
         }
-        var curShape = shape[newPose];
-        var flag = true;
-        for (var i in curShape) {
-            if (this.state[curShape[i][0] + position[0]] === undefined || this.state[curShape[i][0] + position[0]][curShape[i][1] + position[1]] !== 0 && curShape[i][1] + position[1] >= 0) {
-                flag = false;
+        var positions = new Array(shape[0].length);
+        for (var i in positions) {
+            positions[i] = [[position[0] + shape[newPose][i][0], position[1] + shape[newPose][i][1]]];
+        }
+        var width = 0;
+        var newWidth = 0;
+        for (var i = 0; i < shape[0].length; i++) {
+            if (shape[pose][i][0] > width) {
+                width = shape[pose][i][0];
+            }
+            if (shape[newPose][i][0] > newWidth) {
+                newWidth = shape[newPose][i][0];
             }
         }
-        if (flag) {
-            pose = newPose;
-            this.updatePiece();
-            return pose;
-        } else {
-            return false;
+        for (var shift = 0; shift <= Math.max(newWidth - width, 0); shift++) {
+            var newShape = shape[newPose];
+            var newPosition = [position[0] - shift, position[1]];
+            var flag = true;
+            for (var i in newShape) {
+                if (this.state[newShape[i][0] + newPosition[0]] === undefined
+                    || (this.state[newShape[i][0] + newPosition[0]][newShape[i][1] + newPosition[1]] !== 0
+                    && (newShape[i][1] + newPosition[1]) >= 0)) {
+                    flag = false;
+                }
+            }
+            if (flag) {
+                pose = newPose;
+                position = newPosition;
+                this.updatePiece();
+                return pose;
+            }
         }
+        return false;
     }
     if (this.setPosition(position)) {
         this.updatePiece();
@@ -138,8 +157,8 @@ function Piece(position, shape, pose) {
 Piece.prototype.state = [];
 Piece.prototype.initState = function (force) {
     if (force || this.state.length === 0) {
-        Piece.prototype.state = [];
-        for (var i = 0; i <= w; i++) {
+        Piece.prototype.state = [undefined];
+        for (var i = 1; i <= w; i++) {
             var col = [];
             for (var j = 0; j <= h; j++) {
                 col.push(0);
@@ -150,9 +169,6 @@ Piece.prototype.initState = function (force) {
 }
 Piece.prototype.gameOver = function () {
     clearInterval(timeInterval);
-    // this.moveDownAndCheck = function () { return false; }
-    // this.moveLeft = function () { return false; }
-    // this.moveRight = function () { return false; }
     document.onkeydown = null;
     if (this.gameOverDiv === undefined) {
         Piece.prototype.gameOverDiv = document.createElement("div");
@@ -376,7 +392,8 @@ var timeInterval;
 var pieceTypes = [PieceLine, PieceT, PieceLLeft, PieceLRight, PieceZLeft, PieceZRight, PieceBlock];
 function main() {
     if (onePiece === undefined || !onePiece.moveDownAndCheck()) {
-        onePiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([1, 0], 0);
+        //onePiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([1, 0], 0);
+        onePiece = new pieceTypes[0]([1, 0], 0);
     }
 }
 function startGame() {
