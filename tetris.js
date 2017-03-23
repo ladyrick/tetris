@@ -5,7 +5,7 @@ var container = document.getElementById("container");
 var wPixels = container.clientWidth;
 var hPixels = container.clientHeight;
 function getClassName(x, y) {
-    return "pos_" + (x < 10 ? "0" + x : x) + "_" + (y < 10 ? "0" + y : y);
+    return "pos_" + (x >= 0 && x < 10 ? "0" + x : x) + "_" + (y >= 0 && y < 10 ? "0" + y : y);
 }
 (function () {
     /*构造一个style节点。屏幕左上角为坐标(0,0)，横向变x，纵向变y。*/
@@ -18,17 +18,16 @@ function getClassName(x, y) {
             style += "." + getClassName(i, j) + "{";
             style += "background-color:" + color + ";";
             style += "width:" + (wPixels / w - 4) + "px;";
-            if (j === h+1) {//touch the bottom
+            if (j === h + 1) {//touch the bottom
                 style += "height:" + 0 + "px;";
-                style += "margin-left:" + (wPixels / w * (i-1) + 2) + "px;margin-top:" + (hPixels + 2) + "px;}\n"
+                style += "margin-left:" + (wPixels / w * (i - 1) + 2) + "px;margin-top:" + (hPixels + 2) + "px;}\n"
             } else if (j < 1) {//higher than the roof
                 style += "height:" + 0 + "px;";
-                style += "margin-left:" + (wPixels / w * (i-1) + 2) + "px;margin-top:" + 0 + "px;}\n"
+                style += "margin-left:" + (wPixels / w * (i - 1) + 2) + "px;margin-top:" + 0 + "px;}\n"
             } else {
                 style += "height:" + (hPixels / h - 4) + "px;";
-                style += "margin-left:" + (wPixels / w * (i-1) + 2) + "px;margin-top:" + (hPixels / h * (j-1) + 2) + "px;}\n";
+                style += "margin-left:" + (wPixels / w * (i - 1) + 2) + "px;margin-top:" + (hPixels / h * (j - 1) + 2) + "px;}\n";
             }
-
         }
     }
 
@@ -85,21 +84,30 @@ function Piece(position, shape, pose) {
         return pose;
     }
     Piece.prototype.changePose = function (direct) {
+        var newPose;
         switch (true) {
             case direct < 0:
-                pose = (pose + 3) % shape.length;
+                newPose = (pose + 3) % shape.length;
                 break;
             case direct > 0:
-                pose = (pose + 1) % shape.length;
+                newPose = (pose + 1) % shape.length;
                 break;
             default:
         }
-        if (this.canPlace()) {
+        var curShape = shape[newPose];
+        var flag = true;
+        for (var i in curShape) {
+            if (this.state[curShape[i][0] + position[0]] === undefined || this.state[curShape[i][0] + position[0]][curShape[i][1] + position[1]] !== 0 && curShape[i][1] + position[1] >= 0) {
+                flag = false;
+            }
+        }
+        if (flag) {
+            pose = newPose;
+            this.updatePiece();
             return pose;
         } else {
             return false;
         }
-
     }
     if (this.setPosition(position)) {
         this.updatePiece();
@@ -107,21 +115,21 @@ function Piece(position, shape, pose) {
         this.gameOver();
         return;
     }
+    var _this = this;
     document.onkeydown = function (e) {
         var keycode = e.which;
         switch (keycode) {
             case 38://up
-                onePiece.turnLeft();
+                _this.turnLeft();
                 break;
             case 37://left
-                onePiece.moveLeft();
+                _this.moveLeft();
                 break;
             case 39://right
-                onePiece.moveRight();
+                _this.moveRight();
                 break;
             case 40://down
-                //TODO
-                console.warn("down key not implemented.");
+                while(_this.moveDown());
                 break;
             default:
         }
@@ -140,10 +148,15 @@ Piece.prototype.initState = function () {
     }
 }
 Piece.prototype.gameOver = function () {
+    clearInterval(timeInterval);
+    this.moveDown = function () { return false; }
+    this.moveLeft = function () { return false; }
+    this.moveRight = function () { return false; }
+    document.onkeydown = null;
     if (this.gameOverDiv === undefined) {
         Piece.prototype.gameOverDiv = document.createElement("div");
         var style = "width:100%;height:100%;opacity:0.5;user-select:none;";
-        style += "text-align:center;font-size:3.5em;font-weight:bolder;line-height:"+hPixels+"px;"
+        style += "text-align:center;font-size:3.5em;font-weight:bolder;line-height:" + hPixels + "px;"
         Piece.prototype.gameOverDiv.setAttribute("style", style);
         Piece.prototype.gameOverDiv.innerText = "GAME OVER";
     }
@@ -158,15 +171,18 @@ Piece.prototype.getAllPosition = function () {
     return positions;
 }
 Piece.prototype.canPlace = function (curPos) {
+    for (var i = 1; i <= w; i++) {
+        if (this.state[i][0] !== 0) {
+            return false;
+        }
+    }
     if (curPos === undefined) {
         curPos = this.getPosition();
     }
-    var ps = [];
-    this.getShape()[this.getPose()].forEach(function (p) {
-        ps.push([curPos[0] + p[0], curPos[1] + p[1]]);
-    });
-    for (var i in ps) {
-        if (this.state[ps[i][0]][ps[i][1]] !== 0 && ps[i][1] >= 0) {
+    var shape = this.getShape()[this.getPose()];
+    for (var i in shape) {
+        if (this.state[curPos[0] + shape[i][0]][curPos[1] + shape[i][1]] !== 0
+            && curPos[1] + shape[i][1] >= 0) {
             return false;
         }
     }
@@ -215,6 +231,7 @@ Piece.prototype.moveDown = function () {
         this.getAllPosition().forEach(function (p) {
             _this.state[p[0]][p[1]] = 1;
         });
+        document.onkeydown = null;
         return false;
     }
 }
@@ -250,9 +267,10 @@ function PieceLine(position, pose) {
 extend(PieceLine, Piece);
 
 var onePiece;
+var timeInterval;
 function main() {
     if (onePiece === undefined || !onePiece.moveDown()) {
-        onePiece = new PieceLine([0, -1], 0);
+        onePiece = new PieceLine([1, 0], 0);
     }
 }
-setInterval(main, 100);
+timeInterval = setInterval(main, 500);
