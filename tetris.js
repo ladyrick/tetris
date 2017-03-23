@@ -52,7 +52,7 @@ function extend(Child, Parent) {
 
 
 function Piece(position, shape, pose) {
-    this.initState();
+    this.initState(false);
     Piece.prototype.getPosition = function () {
         return position;
     }
@@ -129,15 +129,16 @@ function Piece(position, shape, pose) {
                 _this.moveRight();
                 break;
             case 40://down
-                while(_this.moveDown());
+                while (_this.moveDownAndCheck());
                 break;
             default:
         }
     }
 }
 Piece.prototype.state = [];
-Piece.prototype.initState = function () {
-    if (this.state.length === 0) {
+Piece.prototype.initState = function (force) {
+    if (force || this.state.length === 0) {
+        Piece.prototype.state = [];
         for (var i = 0; i <= w; i++) {
             var col = [];
             for (var j = 0; j <= h; j++) {
@@ -149,16 +150,18 @@ Piece.prototype.initState = function () {
 }
 Piece.prototype.gameOver = function () {
     clearInterval(timeInterval);
-    this.moveDown = function () { return false; }
-    this.moveLeft = function () { return false; }
-    this.moveRight = function () { return false; }
+    // this.moveDownAndCheck = function () { return false; }
+    // this.moveLeft = function () { return false; }
+    // this.moveRight = function () { return false; }
     document.onkeydown = null;
     if (this.gameOverDiv === undefined) {
         Piece.prototype.gameOverDiv = document.createElement("div");
-        var style = "width:100%;height:100%;opacity:0.5;user-select:none;";
+        Piece.prototype.gameOverDiv.id = "gameover";
+        var style = "width:100%;height:100%;opacity:0.5;user-select:none;cursor:pointer;";
         style += "text-align:center;font-size:3.5em;font-weight:bolder;line-height:" + hPixels + "px;"
         Piece.prototype.gameOverDiv.setAttribute("style", style);
         Piece.prototype.gameOverDiv.innerText = "GAME OVER";
+        Piece.prototype.gameOverDiv.setAttribute("onclick", "startGame()");
     }
     container.appendChild(Piece.prototype.gameOverDiv);
 }
@@ -221,17 +224,57 @@ Piece.prototype.turnRight = function () {
         return false;
     }
 }
-Piece.prototype.moveDown = function () {
+Piece.prototype.rowsToDelete = [];
+Piece.prototype.moveDownAndCheck = function () {
+    if (this.divs.length === 0) {
+        return false;
+    }
     var curPos = this.getPosition();
     if (this.setPosition([curPos[0], curPos[1] + 1])) {
         this.updatePiece();
         return true;
     } else {
-        var _this = this;
-        this.getAllPosition().forEach(function (p) {
-            _this.state[p[0]][p[1]] = 1;
-        });
         document.onkeydown = null;
+        var positions = this.getAllPosition();
+        for (var i in positions) {
+            var p = positions[i];
+            this.state[p[0]][p[1]] = this.divs.shift();
+        }
+        for (var j = 1; j <= h; j++) {
+            var d = true;
+            for (var i = 1; i <= w; i++) {
+                if (this.state[i][j] === 0) {
+                    d = false;
+                    break;
+                }
+            }
+            if (d) {
+                this.rowsToDelete.push(j);
+            }
+        }
+        if (this.rowsToDelete.length > 0) {
+            var skipRowNum = 0;
+            for (var j = h; j >= 1; j--) {
+                if (this.rowsToDelete[this.rowsToDelete.length - 1] === j) {
+                    skipRowNum++;
+                    this.rowsToDelete.pop();
+                    for (var i = 1; i <= w; i++) {
+                        if (this.state[i][j]) {
+                            container.removeChild(this.state[i][j]);
+                            this.state[i][j] = 0;
+                        }
+                    }
+                } else if (skipRowNum > 0) {
+                    for (var i = 1; i <= w; i++) {
+                        if (this.state[i][j] !== 0) {
+                            this.state[i][j].setAttribute("class", getClassName(i, j + skipRowNum));
+                            this.state[i][j + skipRowNum] = this.state[i][j];
+                            this.state[i][j] = 0;
+                        }
+                    }
+                }
+            }
+        }
         return false;
     }
 }
@@ -269,8 +312,16 @@ extend(PieceLine, Piece);
 var onePiece;
 var timeInterval;
 function main() {
-    if (onePiece === undefined || !onePiece.moveDown()) {
+    if (onePiece === undefined || !onePiece.moveDownAndCheck()) {
         onePiece = new PieceLine([1, 0], 0);
     }
 }
-timeInterval = setInterval(main, 500);
+function startGame() {
+    container.innerHTML = "";
+    if (onePiece) {
+        onePiece.initState(true);
+        onePiece = undefined;
+    }
+    timeInterval = setInterval(main, 500);
+}
+window.onload = startGame;
