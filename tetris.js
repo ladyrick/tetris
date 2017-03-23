@@ -298,7 +298,35 @@ Piece.prototype.moveRight = function () {
 }
 
 
-
+function getRotatedShape(oneShape) {
+    var allShape = [0, 0, 0, 0];
+    var temp = oneShape;
+    allShape[0] = temp.slice();
+    for (var i = 1; i < 4; i++) {
+        var xMin, yMax;
+        for (var j = 0; j < temp.length; j++) {
+            temp[j] = [temp[j][1], -temp[j][0]];
+            if (xMin === undefined || xMin > temp[j][0]) {
+                xMin = temp[j][0];
+            }
+            if (yMax === undefined || yMax < temp[j][1]) {
+                yMax = temp[j][1];
+            }
+        }
+        if (xMin < 0) {
+            for (var j = 0; j < temp.length; j++) {
+                temp[j][0] -= xMin;
+            }
+        }
+        if (yMax > 0) {
+            for (var j = 0; j < temp.length; j++) {
+                temp[j][1] -= yMax;
+            }
+        }
+        allShape[i] = temp.slice();
+    }
+    return allShape;
+}
 
 function PieceLine(position, pose) {
     var shape = [
@@ -309,11 +337,71 @@ function PieceLine(position, pose) {
 }
 extend(PieceLine, Piece);
 
+function PieceT(position, pose) {
+    var shape = [
+        [[0, 0], [1, 0], [2, 0], [1, -1]],
+        [[0, -1], [1, 0], [1, -1], [1, -2]],
+        [[0, -1], [1, 0], [1, -1], [2, -1]],
+        [[0, 0], [0, -1], [0, -2], [1, -1]]
+    ];
+    Piece.call(this, position, shape, pose);
+}
+extend(PieceT, Piece);
+
+function PieceLLeft(position, pose) {
+    var shape = [
+        [[0, 0], [1, 0], [0, -1], [0, -2]],
+        [[0, 0], [1, 0], [2, 0], [2, -1]],
+        [[0, -2], [1, -2], [1, -1], [1, 0]],
+        [[0, 0], [0, -1], [1, -1], [2, -1]]
+    ];
+    Piece.call(this, position, shape, pose);
+}
+extend(PieceLLeft, Piece);
+
+function PieceLRight(position, pose) {
+    var shape = [
+        [[0, 0], [1, 0], [1, -1], [1, -2]],
+        [[0, -1], [1, -1], [2, -1], [2, 0]],
+        [[0, 0], [0, -1], [0, -2], [1, -2]],
+        [[0, 0], [0, -1], [1, 0], [2, 0]]
+    ];
+    Piece.call(this, position, shape, pose);
+}
+extend(PieceLRight, Piece);
+
+function PieceZLeft(position, pose) {
+    var shape = [
+        [[0, -1], [1, -1], [1, 0], [2, 0]],
+        [[0, 0], [0, -1], [1, -1], [1, -2]]
+    ];
+    Piece.call(this, position, shape, pose);
+}
+extend(PieceZLeft, Piece);
+
+function PieceZRight(position, pose) {
+    var shape = [
+        [[0, 0], [1, 0], [1, -1], [2, -1]],
+        [[1, 0], [1, -1], [0, -1], [0, -2]]
+    ];
+    Piece.call(this, position, shape, pose);
+}
+extend(PieceZRight, Piece);
+
+function PieceBlock(position, pose) {
+    var shape = [
+        [[0, 0], [1, 0], [1, -1], [0, -1]]
+    ];
+    Piece.call(this, position, shape, pose);
+}
+extend(PieceBlock, Piece);
+
 var onePiece;
 var timeInterval;
+var pieceTypes = [PieceLine, PieceT, PieceLLeft, PieceLRight, PieceZLeft, PieceZRight, PieceBlock];
 function main() {
     if (onePiece === undefined || !onePiece.moveDownAndCheck()) {
-        onePiece = new PieceLine([1, 0], 0);
+        onePiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([1, 0], 0);
     }
 }
 function startGame() {
