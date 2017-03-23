@@ -11,7 +11,9 @@ function getClassName(x, y) {
 }
 (function () {
     /*构造一个style节点。屏幕左上角为坐标(0,0)，横向变x，纵向变y。*/
-    var style = "#container{position:fixed;left:50%;right:50%;top:50%;bottom:50%;";
+    var style = "";
+    style += "body{background-color:#1e1e1e;}\n";
+    style += "#container{position:fixed;left:50%;right:50%;top:50%;bottom:50%;";
     style += "width:" + wPixels + "px;height:" + hPixels + "px;";
     style += "margin-left:-" + (wPixels / 2 + containerBorderSize) + "px;";
     style += "margin-top:-" + (hPixels / 2 + 3) + "px;";
@@ -184,7 +186,7 @@ Piece.prototype.gameOver = function () {
     if (this.gameOverDiv === undefined) {
         Piece.prototype.gameOverDiv = document.createElement("div");
         Piece.prototype.gameOverDiv.id = "gameover";
-        var style = "width:100%;height:100%;opacity:0.5;user-select:none;cursor:pointer;";
+        var style = "color:white;width:100%;height:100%;opacity:0.5;user-select:none;cursor:pointer;";
         style += "text-align:center;font-size:3.5em;font-weight:bolder;line-height:" + hPixels + "px;"
         Piece.prototype.gameOverDiv.setAttribute("style", style);
         Piece.prototype.gameOverDiv.innerText = "GAME OVER";
@@ -404,7 +406,7 @@ var timeOut;
 var pieceTypes = [PieceLine, PieceT, PieceLLeft, PieceLRight, PieceZLeft, PieceZRight, PieceBlock];
 function main() {
     if (onePiece === undefined || !onePiece.moveDownAndCheck()) {
-        onePiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([5, 0], Math.floor(Math.random() * 4));
+        onePiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([Math.ceil(Math.random() * w), 0], Math.floor(Math.random() * 4));
         //onePiece = new pieceTypes[0]([5, 0], 0);
     }
 }
