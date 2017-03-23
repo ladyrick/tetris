@@ -12,21 +12,21 @@ function getClassName(x, y) {
     var style = "#container div{";
     style += "position:absolute;";
     style += "transition:0.2s;}\n";
-    for (var j = -4; j <= h; j++) {
+    for (var j = -3; j <= h + 1; j++) {
         var color = "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")";
-        for (var i = 0; i < w; i++) {
+        for (var i = 1; i <= w; i++) {
             style += "." + getClassName(i, j) + "{";
             style += "background-color:" + color + ";";
             style += "width:" + (wPixels / w - 4) + "px;";
-            if (j === h) {//touch the bottom
+            if (j === h+1) {//touch the bottom
                 style += "height:" + 0 + "px;";
-                style += "margin-left:" + (wPixels / w * i + 2) + "px;margin-top:" + (hPixels + 2) + "px;}\n"
-            } else if (j < 0) {//higher than the roof
+                style += "margin-left:" + (wPixels / w * (i-1) + 2) + "px;margin-top:" + (hPixels + 2) + "px;}\n"
+            } else if (j < 1) {//higher than the roof
                 style += "height:" + 0 + "px;";
-                style += "margin-left:" + (wPixels / w * i + 2) + "px;margin-top:" + 0 + "px;}\n"
+                style += "margin-left:" + (wPixels / w * (i-1) + 2) + "px;margin-top:" + 0 + "px;}\n"
             } else {
                 style += "height:" + (hPixels / h - 4) + "px;";
-                style += "margin-left:" + (wPixels / w * i + 2) + "px;margin-top:" + (hPixels / h * j + 2) + "px;}\n";
+                style += "margin-left:" + (wPixels / w * (i-1) + 2) + "px;margin-top:" + (hPixels / h * (j-1) + 2) + "px;}\n";
             }
 
         }
@@ -58,17 +58,17 @@ function Piece(position, shape, pose) {
         return position;
     }
     Piece.prototype.setPosition = function (newPos) {
-        if (newPos[0] < 0) {
-            newPos[0] = 0;
+        if (newPos[0] < 1) {
+            newPos[0] = 1;
         } else {
             shape[pose].forEach(function (x) {
-                if (newPos[0] + x[0] >= w) {
-                    newPos[0] -= newPos[0] + x[0] - w + 1;
+                if (newPos[0] + x[0] > w) {
+                    newPos[0] -= newPos[0] + x[0] - w;
                 }
             });
         }
-        if (newPos[1] < -1) {
-            newPos[1] = -1;
+        if (newPos[1] < 0) {
+            newPos[1] = 0;
         }
         if (this.canPlace(newPos)) {
             position[0] = newPos[0];
@@ -103,19 +103,51 @@ function Piece(position, shape, pose) {
     }
     if (this.setPosition(position)) {
         this.updatePiece();
+    } else {
+        this.gameOver();
+        return;
+    }
+    document.onkeydown = function (e) {
+        var keycode = e.which;
+        switch (keycode) {
+            case 38://up
+                onePiece.turnLeft();
+                break;
+            case 37://left
+                onePiece.moveLeft();
+                break;
+            case 39://right
+                onePiece.moveRight();
+                break;
+            case 40://down
+                //TODO
+                console.warn("down key not implemented.");
+                break;
+            default:
+        }
     }
 }
 Piece.prototype.state = [];
 Piece.prototype.initState = function () {
     if (this.state.length === 0) {
-        for (var i = 0; i < w; i++) {
+        for (var i = 0; i <= w; i++) {
             var col = [];
-            for (var j = 0; j < h; j++) {
+            for (var j = 0; j <= h; j++) {
                 col.push(0);
             }
             this.state.push(col);
         }
     }
+}
+Piece.prototype.gameOver = function () {
+    if (this.gameOverDiv === undefined) {
+        Piece.prototype.gameOverDiv = document.createElement("div");
+        var style = "width:100%;height:100%;opacity:0.5;user-select:none;";
+        style += "text-align:center;font-size:3.5em;font-weight:bolder;line-height:"+hPixels+"px;"
+        Piece.prototype.gameOverDiv.setAttribute("style", style);
+        Piece.prototype.gameOverDiv.innerText = "GAME OVER";
+    }
+    container.appendChild(Piece.prototype.gameOverDiv);
 }
 Piece.prototype.getAllPosition = function () {
     var positions = [];
@@ -134,7 +166,7 @@ Piece.prototype.canPlace = function (curPos) {
         ps.push([curPos[0] + p[0], curPos[1] + p[1]]);
     });
     for (var i in ps) {
-        if (this.state[ps[i][0]][ps[i][1]] !== 0) {
+        if (this.state[ps[i][0]][ps[i][1]] !== 0 && ps[i][1] >= 0) {
             return false;
         }
     }
@@ -208,38 +240,19 @@ Piece.prototype.moveRight = function () {
 
 
 
-function PieceLine(position,pose) {
+function PieceLine(position, pose) {
     var shape = [
         [[0, 0], [1, 0], [2, 0], [3, 0]],
         [[0, 0], [0, -1], [0, -2], [0, -3]]
     ];
-    Piece.call(this, position, shape,pose);
+    Piece.call(this, position, shape, pose);
 }
 extend(PieceLine, Piece);
 
 var onePiece;
-document.onkeydown = function (e) {
-    var keycode = e.which;
-    switch (keycode) {
-        case 38://up
-            onePiece.turnLeft();
-            break;
-        case 37://left
-            onePiece.moveLeft();
-            break;
-        case 39://right
-            onePiece.moveRight();
-            break;
-        case 40://down
-            //TODO
-            console.warn("down key not implemented.");
-            break;
-        default:
-    }
-}
 function main() {
     if (onePiece === undefined || !onePiece.moveDown()) {
-        onePiece = new PieceLine([0, -1],0);
+        onePiece = new PieceLine([0, -1], 0);
     }
 }
-setInterval(main, 300);
+setInterval(main, 100);
