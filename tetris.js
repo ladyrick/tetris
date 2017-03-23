@@ -1,15 +1,22 @@
 "use strict"
-var w = 8;
-var h = 12;
-var container = document.getElementById("container");
-var wPixels = container.clientWidth;
-var hPixels = container.clientHeight;
+var w = 11;
+var h = 20;
+var totalHeight = 800;
+var containerBorderSize = 3;
+var wPixels = totalHeight / h * w;
+var hPixels = totalHeight;
+var container;
 function getClassName(x, y) {
     return "pos_" + (x >= 0 && x < 10 ? "0" + x : x) + "_" + (y >= 0 && y < 10 ? "0" + y : y);
 }
 (function () {
     /*构造一个style节点。屏幕左上角为坐标(0,0)，横向变x，纵向变y。*/
-    var style = "#container div{";
+    var style = "#container{position:fixed;left:50%;right:50%;top:50%;bottom:50%;";
+    style += "width:" + wPixels + "px;height:" + hPixels + "px;";
+    style += "margin-left:-" + (wPixels / 2 + containerBorderSize) + "px;";
+    style += "margin-top:-" + (hPixels / 2 + 3) + "px;";
+    style += "border:solid chocolate " + containerBorderSize + "px;}\n";
+    style += "#container div{";
     style += "position:absolute;";
     style += "transition:0.2s;}\n";
     for (var j = -3; j <= h + 1; j++) {
@@ -34,6 +41,9 @@ function getClassName(x, y) {
     var styleDOM = document.createElement("style");
     styleDOM.innerHTML = style;
     document.getElementsByTagName("head")[0].appendChild(styleDOM);
+    container = document.createElement("div");
+    container.id = "container";
+    document.getElementsByTagName("body")[0].appendChild(container);
 })();
 
 
@@ -115,7 +125,7 @@ function Piece(position, shape, pose) {
             for (var i in newShape) {
                 if (this.state[newShape[i][0] + newPosition[0]] === undefined
                     || (this.state[newShape[i][0] + newPosition[0]][newShape[i][1] + newPosition[1]] !== 0
-                    && (newShape[i][1] + newPosition[1]) >= 0)) {
+                        && (newShape[i][1] + newPosition[1]) >= 0)) {
                     flag = false;
                 }
             }
@@ -169,6 +179,7 @@ Piece.prototype.initState = function (force) {
 }
 Piece.prototype.gameOver = function () {
     clearInterval(timeInterval);
+    setTimeout(startGame,10000);
     document.onkeydown = null;
     if (this.gameOverDiv === undefined) {
         Piece.prototype.gameOverDiv = document.createElement("div");
@@ -389,14 +400,16 @@ extend(PieceBlock, Piece);
 
 var onePiece;
 var timeInterval;
+var timeOut;
 var pieceTypes = [PieceLine, PieceT, PieceLLeft, PieceLRight, PieceZLeft, PieceZRight, PieceBlock];
 function main() {
     if (onePiece === undefined || !onePiece.moveDownAndCheck()) {
-        //onePiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([1, 0], 0);
-        onePiece = new pieceTypes[0]([1, 0], 0);
+        onePiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([5, 0], Math.floor(Math.random() * 4));
+        //onePiece = new pieceTypes[0]([5, 0], 0);
     }
 }
 function startGame() {
+    clearTimeout(timeOut);
     container.innerHTML = "";
     if (onePiece) {
         onePiece.initState(true);
