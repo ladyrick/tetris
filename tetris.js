@@ -141,7 +141,7 @@ Piece.prototype.initState = function (force) {
 }
 Piece.prototype.gameOver = function () {
     clearInterval(timeInterval);
-    timeOut = setTimeout(startGame, 5000);
+    timeOut = setTimeout(startGame, 1000);
     document.onkeydown = null;
     if (this.gameOverDiv === undefined) {
         Piece.prototype.gameOverDiv = document.createElement("div");
@@ -338,7 +338,10 @@ Piece.prototype.moveRight = function () {
 }
 Piece.prototype.setProperPositionAndPose = function () {
     var shape = this.getShape();
-    var serface = 0;
+    var serface = -99999999;
+    var borderWeight = 0.75;
+    var holeWeight = 2;
+    var clearLineWeight = 5;
     var properPose = [];
     var properPosition = [];
     for (var curPose in shape) {
@@ -354,7 +357,14 @@ Piece.prototype.setProperPositionAndPose = function () {
             var finishPosition = undefined;
             for (var j = 0; j <= h; j++) {
                 //simulate fall down
-                if (this.canPlace([i, j])) {
+                var canPlace = true;
+                for (var block in curShape) {
+                    if (this.state[i + curShape[block][0]][j + curShape[block][1]] !== 0
+                        && j + curShape[block][1] >= 0) {
+                        canPlace = false;
+                    }
+                }
+                if (canPlace) {
                     finishPosition = [i, j];
                 } else {
                     break;
@@ -366,25 +376,52 @@ Piece.prototype.setProperPositionAndPose = function () {
                 for (var block in curShape) {
                     curPositions.push([curShape[block][0] + finishPosition[0], curShape[block][1] + finishPosition[1]]);
                 }
+                var shapeLines = [];
                 for (var block in curPositions) {
                     var cp = curPositions[block];
-                    if (cp[0] === 1 || this.state[cp[0] - 1][cp[1]] !== 0) {
+                    if (shapeLines[cp[1]] === undefined) {
+                        shapeLines[cp[1]] = [];
+                    }
+                    shapeLines[cp[1]].push(cp);
+                    if (cp[0] === 1) {
+                        curSerface += borderWeight;
+                    } else if (this.state[cp[0] - 1][cp[1]] !== 0) {
                         curSerface++;
                     }
                     if (cp[1] === h || this.state[cp[0]][cp[1] + 1] !== 0) {
                         curSerface++;
+                    } else if (cp[1] < h && this.state[cp[0]][cp[1] + 1] === 0) {
+                        
+                        curSerface -= holeWeight;
                     }
-                    if (cp[0] === w || this.state[cp[0] + 1][cp[1]] !== 0) {
+                    if (cp[0] === w) {
+                        curSerface += borderWeight;
+                    } else if (this.state[cp[0] + 1][cp[1]] !== 0) {
                         curSerface++;
+                    }
+                }
+                for (var sl in shapeLines) {
+                    if (shapeLines[sl] !== undefined) {
+                        var holeNum = shapeLines[sl].length;
+                        for (var col = 1; col <= w; col++) {
+                            if (this.state[col][sl] === 0) {
+                                holeNum--;
+                            }
+                        }
+                        if (holeNum === 0) {
+                            curSerface += clearLineWeight;
+                        }
                     }
                 }
                 if (curSerface > serface) {
                     properPose = [curPose];
                     properPosition = [finishPosition];
+                    //properPosition = [[i, 0]];
                     serface = curSerface;
                 } else if (curSerface === serface) {
                     properPose.push(curPose);
                     properPosition.push(finishPosition);
+                    //properPosition.push([i, 0]);
                 }
             }
         }
@@ -471,20 +508,21 @@ extend(PieceBlock, Piece);
 var timeInterval;
 var timeOut;
 var timeIntervalDuring = 500;
+var timeIntervalDuringAIplayer = 500;
 var AIplayer = true;
 var pieceTypes = [PieceLine, PieceT, PieceLLeft, PieceLRight, PieceZLeft, PieceZRight, PieceBlock];
 var onePiece;
 var nextPiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([Math.ceil(Math.random() * w), 0], Math.floor(Math.random() * 4));
 if (AIplayer) {
     nextPiece.setProperPositionAndPose();
-    timeIntervalDuring = 100;
+    timeIntervalDuring = timeIntervalDuringAIplayer;
 }
 function main() {
     if (onePiece === undefined || !onePiece.moveDownAndCheck()) {
         onePiece = nextPiece;
         if (AIplayer) {
             onePiece.setProperPositionAndPose();
-            timeIntervalDuring = 100;
+            timeIntervalDuring = timeIntervalDuringAIplayer;
         }
         onePiece.init();
         nextPiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([Math.ceil(Math.random() * w), 0], Math.floor(Math.random() * 4));
