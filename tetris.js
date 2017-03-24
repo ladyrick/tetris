@@ -6,6 +6,8 @@ var containerBorderSize = 3;
 var wPixels = totalHeight / h * w;
 var hPixels = totalHeight;
 var container;
+var previewPosition = [13, 6];
+var blockGapWidth = 4;
 function getClassName(x, y) {
     return "pos_" + (x >= 0 && x < 10 ? "0" + x : x) + "_" + (y >= 0 && y < 10 ? "0" + y : y);
 }
@@ -16,27 +18,33 @@ function getClassName(x, y) {
     style += "#container{position:fixed;left:50%;right:50%;top:50%;bottom:50%;";
     style += "width:" + wPixels + "px;height:" + hPixels + "px;";
     style += "margin-left:-" + (wPixels / 2 + containerBorderSize) + "px;";
-    style += "margin-top:-" + (hPixels / 2 + 3) + "px;";
+    style += "margin-top:-" + (hPixels / 2 + containerBorderSize) + "px;";
     style += "border:solid chocolate " + containerBorderSize + "px;}\n";
     style += "#container div{";
     style += "position:absolute;";
     style += "transition:0.1s;transition-timing-function:linear;}\n";
     for (var j = -3; j <= h + 1; j++) {
-        var color = "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")";
         for (var i = 1; i <= w; i++) {
             style += "." + getClassName(i, j) + "{";
-            style += "background-color:" + color + ";";
-            style += "width:" + (wPixels / w - 4) + "px;";
+            style += "width:" + (wPixels / w - blockGapWidth) + "px;";
             if (j === h + 1) {//touch the bottom
                 style += "height:" + 0 + "px;";
-                style += "margin-left:" + (wPixels / w * (i - 1) + 2) + "px;margin-top:" + (hPixels + 2) + "px;}\n"
+                style += "margin-left:" + (wPixels / w * (i - 1) + blockGapWidth / 2) + "px;margin-top:" + hPixels + "px;}\n"
             } else if (j < 1) {//higher than the roof
                 style += "height:" + 0 + "px;";
-                style += "margin-left:" + (wPixels / w * (i - 1) + 2) + "px;margin-top:" + 0 + "px;}\n"
+                style += "margin-left:" + (wPixels / w * (i - 1) + blockGapWidth / 2) + "px;margin-top:" + 0 + "px;}\n"
             } else {
-                style += "height:" + (hPixels / h - 4) + "px;";
-                style += "margin-left:" + (wPixels / w * (i - 1) + 2) + "px;margin-top:" + (hPixels / h * (j - 1) + 2) + "px;}\n";
+                style += "height:" + (hPixels / h - blockGapWidth) + "px;";
+                style += "margin-left:" + (wPixels / w * (i - 1) + blockGapWidth / 2) + "px;margin-top:" + (hPixels / h * (j - 1) + blockGapWidth / 2) + "px;}\n";
             }
+        }
+    }
+    for (var i = previewPosition[0]; i < previewPosition[0] + 4; i++) {
+        for (var j = previewPosition[1]; j > previewPosition[1] - 4; j--) {
+            style += "." + getClassName(i, j) + "{";
+            style += "width:" + (wPixels / w - blockGapWidth) + "px;";
+            style += "height:" + (hPixels / h - blockGapWidth) + "px;";
+            style += "margin-left:" + (wPixels / w * (i - 1) + blockGapWidth / 2) + "px;margin-top:" + (hPixels / h * (j - 1) + blockGapWidth / 2) + "px;}\n";
         }
     }
 
@@ -64,7 +72,7 @@ function extend(Child, Parent) {
 
 
 function Piece(position, shape, pose) {
-    this.initState();
+    Piece.prototype.initState();
     this.getPosition = function () {
         return position;
     }
@@ -98,8 +106,10 @@ function Piece(position, shape, pose) {
     this.setPose = function (newPose) {
         pose = newPose % shape.length;
     }
+    this.togglePreview();
 }
 Piece.prototype.init = function () {
+    this.togglePreview();
     if (this.setPosition(this.getPosition())) {
         this.updatePiece();
     } else {
@@ -126,16 +136,63 @@ Piece.prototype.init = function () {
         }
     }
 }
+Piece.prototype.score = 0;
+Piece.prototype.scoreDiv = undefined;
+Piece.prototype.setScore = function () {
+    if (Piece.prototype.scoreDiv === undefined) {
+        var scoreContainerDiv = document.createElement("div");
+        var style = "";
+        style += "width:" + (wPixels / 2.5) + "px;";
+        style += "height:" + (hPixels / 5) + "px;";
+        style += "margin-left:-" + ((wPixels / 2.5) + containerBorderSize) + "px;";
+        style += "margin-top:" + (hPixels / 6) + "px;";
+        scoreContainerDiv.setAttribute("style", style);
+        var scoreBanner = document.createElement("p");
+        style = "text-align:center;font-size:2em;margin:20px auto;font-weight:bolder;user-select:none;";
+        style += "color:#BFBFBF;";
+        style += 'font-family:"Arial","Microsoft YaHei","黑体",sans-serif;';
+        scoreBanner.setAttribute("style", style);
+        scoreBanner.innerText = "SCORE";
+        Piece.prototype.scoreDiv = document.createElement("p");
+        Piece.prototype.scoreDiv.setAttribute("style", style);
+        Piece.prototype.scoreDiv.innerText = Piece.prototype.score;
+        scoreContainerDiv.appendChild(scoreBanner);
+        scoreContainerDiv.appendChild(Piece.prototype.scoreDiv);
+        container.appendChild(scoreContainerDiv);
+    } else {
+        Piece.prototype.scoreDiv.innerText = Piece.prototype.score;
+    }
+}
+Piece.prototype.togglePreview = function () {
+    if (this.preDivs === undefined) {
+        this.preDivs = [];
+        if (this.color === undefined) {
+            this.color = "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")";
+        }
+        var _this = this;
+        this.getShape()[this.getPose()].forEach(function (p) {
+            var newPreDiv = document.createElement("div");
+            newPreDiv.setAttribute("class", getClassName(p[0] + 13, p[1] + 6));
+            newPreDiv.setAttribute("style", "background-color:" + _this.color + ";");
+            container.appendChild(newPreDiv);
+            _this.preDivs.push(newPreDiv);
+        })
+    } else {
+        this.preDivs.forEach(function (x) {
+            container.removeChild(x);
+        });
+    }
+}
 Piece.prototype.state = [];
 Piece.prototype.initState = function (force) {
-    if (force || this.state.length === 0) {
+    if (force || Piece.prototype.state.length === 0) {
         Piece.prototype.state = [undefined];
         for (var i = 1; i <= w; i++) {
             var col = [];
             for (var j = 0; j <= h; j++) {
                 col.push(0);
             }
-            this.state.push(col);
+            Piece.prototype.state.push(col);
         }
     }
 }
@@ -233,12 +290,14 @@ Piece.prototype.updatePiece = function () {
     var positions = this.getAllPosition();
     if (this.divs === undefined) {
         this.divs = [];
-        var color = "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")";
+        if (this.color === undefined) {
+            this.color = "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")";
+        }
         var _this = this;
         positions.forEach(function (p) {
             var newDiv = document.createElement("div");
             newDiv.setAttribute("class", getClassName(p[0], p[1]));
-            newDiv.setAttribute("style", "background-color:" + color + ";");
+            newDiv.setAttribute("style", "background-color:" + _this.color + ";");
             container.appendChild(newDiv);
             _this.divs.push(newDiv);
         })
@@ -293,6 +352,8 @@ Piece.prototype.moveDownAndCheck = function () {
             }
         }
         if (this.rowsToDelete.length > 0) {
+            Piece.prototype.score += (this.rowsToDelete.length + 1) * this.rowsToDelete.length * 5;
+            this.setScore();
             var skipRowNum = 0;
             for (var j = h; j >= 1; j--) {
                 if (this.rowsToDelete[this.rowsToDelete.length - 1] === j) {
@@ -513,11 +574,7 @@ var timeIntervalDuringAIplayer = 100;
 var AIplayer = true;
 var pieceTypes = [PieceLine, PieceLine, PieceT, PieceLLeft, PieceLRight, PieceZLeft, PieceZRight, PieceBlock];
 var onePiece;
-var nextPiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([Math.ceil(Math.random() * w), 0], Math.floor(Math.random() * 4));
-if (AIplayer) {
-    nextPiece.setProperPositionAndPose();
-    timeIntervalDuring = timeIntervalDuringAIplayer;
-}
+var nextPiece;
 function main() {
     if (onePiece === undefined || !onePiece.moveDownAndCheck()) {
         onePiece = nextPiece;
@@ -532,6 +589,11 @@ function main() {
 function startGame() {
     clearTimeout(timeOut);
     container.innerHTML = "";
+    nextPiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([Math.ceil(Math.random() * w), 0], Math.floor(Math.random() * 4));
+    if (AIplayer) {
+        nextPiece.setProperPositionAndPose();
+        timeIntervalDuring = timeIntervalDuringAIplayer;
+    }
     if (onePiece) {
         onePiece.initState(true);
         onePiece = undefined;
