@@ -12,7 +12,7 @@ function getClassName(x, y) {
 (function () {
     /*构造一个style节点。屏幕左上角为坐标(0,0)，横向变x，纵向变y。*/
     var style = "";
-    style += "body{background-color:#1e1e1e;}\n";
+    style += "body{font-size:100%;background-color:#1e1e1e;}\n";
     style += "#container{position:fixed;left:50%;right:50%;top:50%;bottom:50%;";
     style += "width:" + wPixels + "px;height:" + hPixels + "px;";
     style += "margin-left:-" + (wPixels / 2 + containerBorderSize) + "px;";
@@ -181,12 +181,13 @@ Piece.prototype.initState = function (force) {
 }
 Piece.prototype.gameOver = function () {
     clearInterval(timeInterval);
-    setTimeout(startGame,10000);
+    timeOut = setTimeout(startGame, 5000);
     document.onkeydown = null;
     if (this.gameOverDiv === undefined) {
         Piece.prototype.gameOverDiv = document.createElement("div");
         Piece.prototype.gameOverDiv.id = "gameover";
         var style = "color:white;width:100%;height:100%;opacity:0.5;user-select:none;cursor:pointer;";
+        style += 'font-family:"Arial","Microsoft YaHei","黑体",sans-serif;';
         style += "text-align:center;font-size:3.5em;font-weight:bolder;line-height:" + hPixels + "px;"
         Piece.prototype.gameOverDiv.setAttribute("style", style);
         Piece.prototype.gameOverDiv.innerText = "GAME OVER";
@@ -224,10 +225,12 @@ Piece.prototype.updatePiece = function () {
     var positions = this.getAllPosition();
     if (this.divs === undefined) {
         this.divs = [];
+        var color = "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")";
         var _this = this;
         positions.forEach(function (p) {
             var newDiv = document.createElement("div");
             newDiv.setAttribute("class", getClassName(p[0], p[1]));
+            newDiv.setAttribute("style", "background-color:" + color + ";");
             container.appendChild(newDiv);
             _this.divs.push(newDiv);
         })
