@@ -20,7 +20,7 @@ function getClassName(x, y) {
     style += "border:solid chocolate " + containerBorderSize + "px;}\n";
     style += "#container div{";
     style += "position:absolute;";
-    style += "transition:0.2s;}\n";
+    style += "transition:0.1s;transition-timing-function:linear;}\n";
     for (var j = -3; j <= h + 1; j++) {
         var color = "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")";
         for (var i = 1; i <= w; i++) {
@@ -64,11 +64,10 @@ function extend(Child, Parent) {
 
 
 function Piece(position, shape, pose) {
-    this.initState(false);
-    Piece.prototype.getPosition = function () {
+    this.getPosition = function () {
         return position;
     }
-    Piece.prototype.setPosition = function (newPos) {
+    this.setPosition = function (newPos) {
         if (newPos[0] < 1) {
             newPos[0] = 1;
         } else {
@@ -89,13 +88,13 @@ function Piece(position, shape, pose) {
             return false;
         }
     }
-    Piece.prototype.getShape = function () {
+    this.getShape = function () {
         return shape;
     }
-    Piece.prototype.getPose = function () {
+    this.getPose = function () {
         return pose;
     }
-    Piece.prototype.changePose = function (direct) {
+    this.changePose = function (direct) {
         var newPose;
         switch (true) {
             case direct < 0:
@@ -140,7 +139,10 @@ function Piece(position, shape, pose) {
         }
         return false;
     }
-    if (this.setPosition(position)) {
+}
+Piece.prototype.init = function () {
+    this.initState(false);
+    if (this.setPosition(this.getPosition())) {
         this.updatePiece();
     } else {
         this.gameOver();
@@ -328,6 +330,34 @@ Piece.prototype.moveRight = function () {
         return false;
     }
 }
+Piece.prototype.setProperPositionAndPose = function () {
+    var shape = this.getShape();
+    for (var s in shape) {
+        var width = 0;
+        var curShape = shape[s];
+        for (var p in shape[s]) {
+            if (width < curShape[p][0]) {
+                width = curShape[p][0];
+            }
+        }
+        for (var p = 1; p <= w - width; p++) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+    }
+}
 
 
 function getRotatedShape(oneShape) {
@@ -403,14 +433,26 @@ function PieceBlock(position, pose) {
 }
 extend(PieceBlock, Piece);
 
-var onePiece;
 var timeInterval;
 var timeOut;
+var timeIntervalDuring = 500;
+var AIplayer = true;
 var pieceTypes = [PieceLine, PieceT, PieceLLeft, PieceLRight, PieceZLeft, PieceZRight, PieceBlock];
+var onePiece;
+var nextPiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([Math.ceil(Math.random() * w), 0], Math.floor(Math.random() * 4));
+if (AIplayer) {
+    nextPiece.setProperPositionAndPose();
+    timeIntervalDuring = 100;
+}
 function main() {
     if (onePiece === undefined || !onePiece.moveDownAndCheck()) {
-        onePiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([Math.ceil(Math.random() * w), 0], Math.floor(Math.random() * 4));
-        //onePiece = new pieceTypes[0]([5, 0], 0);
+        onePiece = nextPiece;
+        onePiece.init();
+        nextPiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([Math.ceil(Math.random() * w), 0], Math.floor(Math.random() * 4));
+        if (AIplayer) {
+            nextPiece.setProperPositionAndPose();
+            timeIntervalDuring = 200;
+        }
     }
 }
 function startGame() {
@@ -420,6 +462,6 @@ function startGame() {
         onePiece.initState(true);
         onePiece = undefined;
     }
-    timeInterval = setInterval(main, 500);
+    timeInterval = setInterval(main, timeIntervalDuring);
 }
 window.onload = startGame;
