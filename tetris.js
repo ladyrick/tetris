@@ -338,9 +338,9 @@ Piece.prototype.moveRight = function () {
 }
 Piece.prototype.setProperPositionAndPose = function () {
     var shape = this.getShape();
-    var serface = -99999999;
-    var borderWeight = 0.75;
-    var holeWeight = 2;
+    var serface = -Infinity;
+    var borderWeight = 0.5;
+    var holeWeight = 3;
     var clearLineWeight = 5;
     var properPose = [];
     var properPosition = [];
@@ -390,9 +390,10 @@ Piece.prototype.setProperPositionAndPose = function () {
                     }
                     if (cp[1] === h || this.state[cp[0]][cp[1] + 1] !== 0) {
                         curSerface++;
-                    } else if (cp[1] < h && this.state[cp[0]][cp[1] + 1] === 0) {
-                        
-                        curSerface -= holeWeight;
+                    } else if (cp[1] < h && curPositions.findIndex(function (x) { return x[0] === cp[0] && x[1] === cp[1] + 1; }) === -1) {
+                        for (var t = 1; this.state[cp[0]][cp[1] + t] === 0; t++) {
+                            curSerface -= holeWeight;
+                        }
                     }
                     if (cp[0] === w) {
                         curSerface += borderWeight;
@@ -508,9 +509,9 @@ extend(PieceBlock, Piece);
 var timeInterval;
 var timeOut;
 var timeIntervalDuring = 500;
-var timeIntervalDuringAIplayer = 500;
+var timeIntervalDuringAIplayer = 100;
 var AIplayer = true;
-var pieceTypes = [PieceLine, PieceT, PieceLLeft, PieceLRight, PieceZLeft, PieceZRight, PieceBlock];
+var pieceTypes = [PieceLine, PieceLine, PieceT, PieceLLeft, PieceLRight, PieceZLeft, PieceZRight, PieceBlock];
 var onePiece;
 var nextPiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([Math.ceil(Math.random() * w), 0], Math.floor(Math.random() * 4));
 if (AIplayer) {
