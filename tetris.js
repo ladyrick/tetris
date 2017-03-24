@@ -400,7 +400,7 @@ Piece.prototype.moveRight = function () {
 Piece.prototype.setProperPositionAndPose = function () {
     var shape = this.getShape();
     var serface = -Infinity;
-    var borderWeight = 0.5;
+    var borderWeight = 0.7;
     var holeWeight = 3;
     var clearLineWeight = 5;
     var properPose = [];
@@ -477,12 +477,12 @@ Piece.prototype.setProperPositionAndPose = function () {
                 }
                 if (curSerface > serface) {
                     properPose = [curPose];
-                    properPosition = [finishPosition];
+                    properPosition = [[finishPosition[0],finishPosition[1]-3]];
                     //properPosition = [[i, 0]];
                     serface = curSerface;
                 } else if (curSerface === serface) {
                     properPose.push(curPose);
-                    properPosition.push(finishPosition);
+                    properPosition.push([finishPosition[0],finishPosition[1]-3]);
                     //properPosition.push([i, 0]);
                 }
             }
