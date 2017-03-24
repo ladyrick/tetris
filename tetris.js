@@ -64,6 +64,7 @@ function extend(Child, Parent) {
 
 
 function Piece(position, shape, pose) {
+    this.initState();
     this.getPosition = function () {
         return position;
     }
@@ -94,54 +95,11 @@ function Piece(position, shape, pose) {
     this.getPose = function () {
         return pose;
     }
-    this.changePose = function (direct) {
-        var newPose;
-        switch (true) {
-            case direct < 0:
-                newPose = (pose + 3) % shape.length;
-                break;
-            case direct > 0:
-                newPose = (pose + 1) % shape.length;
-                break;
-            default:
-        }
-        var positions = new Array(shape[0].length);
-        for (var i in positions) {
-            positions[i] = [[position[0] + shape[newPose][i][0], position[1] + shape[newPose][i][1]]];
-        }
-        var width = 0;
-        var newWidth = 0;
-        for (var i = 0; i < shape[0].length; i++) {
-            if (shape[pose][i][0] > width) {
-                width = shape[pose][i][0];
-            }
-            if (shape[newPose][i][0] > newWidth) {
-                newWidth = shape[newPose][i][0];
-            }
-        }
-        for (var shift = 0; shift <= Math.max(newWidth - width, 0); shift++) {
-            var newShape = shape[newPose];
-            var newPosition = [position[0] - shift, position[1]];
-            var flag = true;
-            for (var i in newShape) {
-                if (this.state[newShape[i][0] + newPosition[0]] === undefined
-                    || (this.state[newShape[i][0] + newPosition[0]][newShape[i][1] + newPosition[1]] !== 0
-                        && (newShape[i][1] + newPosition[1]) >= 0)) {
-                    flag = false;
-                }
-            }
-            if (flag) {
-                pose = newPose;
-                position = newPosition;
-                this.updatePiece();
-                return pose;
-            }
-        }
-        return false;
+    this.setPose = function (newPose) {
+        pose = newPose % shape.length;
     }
 }
 Piece.prototype.init = function () {
-    this.initState(false);
     if (this.setPosition(this.getPosition())) {
         this.updatePiece();
     } else {
@@ -196,6 +154,54 @@ Piece.prototype.gameOver = function () {
         Piece.prototype.gameOverDiv.setAttribute("onclick", "startGame()");
     }
     container.appendChild(Piece.prototype.gameOverDiv);
+}
+Piece.prototype.changePose = function (direct) {
+    var newPose;
+    var pose = this.getPose();
+    var position = this.getPosition();
+    var shape = this.getShape();
+    switch (true) {
+        case direct < 0:
+            newPose = (pose + 3) % shape.length;
+            break;
+        case direct > 0:
+            newPose = (pose + 1) % shape.length;
+            break;
+        default:
+    }
+    var positions = new Array(shape[0].length);
+    for (var i in positions) {
+        positions[i] = [[position[0] + shape[newPose][i][0], position[1] + shape[newPose][i][1]]];
+    }
+    var width = 0;
+    var newWidth = 0;
+    for (var i = 0; i < shape[0].length; i++) {
+        if (shape[pose][i][0] > width) {
+            width = shape[pose][i][0];
+        }
+        if (shape[newPose][i][0] > newWidth) {
+            newWidth = shape[newPose][i][0];
+        }
+    }
+    for (var shift = 0; shift <= Math.max(newWidth - width, 0); shift++) {
+        var newShape = shape[newPose];
+        var newPosition = [position[0] - shift, position[1]];
+        var flag = true;
+        for (var i in newShape) {
+            if (this.state[newShape[i][0] + newPosition[0]] === undefined
+                || (this.state[newShape[i][0] + newPosition[0]][newShape[i][1] + newPosition[1]] !== 0
+                    && (newShape[i][1] + newPosition[1]) >= 0)) {
+                flag = false;
+            }
+        }
+        if (flag) {
+            this.setPose(newPose);
+            this.setPosition(newPosition);
+            this.updatePiece();
+            return newPose;
+        }
+    }
+    return false;
 }
 Piece.prototype.getAllPosition = function () {
     var positions = [];
@@ -332,31 +338,60 @@ Piece.prototype.moveRight = function () {
 }
 Piece.prototype.setProperPositionAndPose = function () {
     var shape = this.getShape();
-    for (var s in shape) {
+    var serface = 0;
+    var properPose = [];
+    var properPosition = [];
+    for (var curPose in shape) {
         var width = 0;
-        var curShape = shape[s];
-        for (var p in shape[s]) {
-            if (width < curShape[p][0]) {
-                width = curShape[p][0];
+        var curShape = shape[curPose];
+        for (var block in curShape) {
+            if (width < curShape[block][0]) {
+                width = curShape[block][0];
             }
         }
-        for (var p = 1; p <= w - width; p++) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        for (var i = 1; i <= w - width; i++) {
+            //assume the piece is in pose s and in position [p,0].
+            var finishPosition = undefined;
+            for (var j = 0; j <= h; j++) {
+                //simulate fall down
+                if (this.canPlace([i, j])) {
+                    finishPosition = [i, j];
+                } else {
+                    break;
+                }
+            }
+            if (finishPosition !== undefined) {
+                var curSerface = 0;
+                var curPositions = [];
+                for (var block in curShape) {
+                    curPositions.push([curShape[block][0] + finishPosition[0], curShape[block][1] + finishPosition[1]]);
+                }
+                for (var block in curPositions) {
+                    var cp = curPositions[block];
+                    if (cp[0] === 1 || this.state[cp[0] - 1][cp[1]] !== 0) {
+                        curSerface++;
+                    }
+                    if (cp[1] === h || this.state[cp[0]][cp[1] + 1] !== 0) {
+                        curSerface++;
+                    }
+                    if (cp[0] === w || this.state[cp[0] + 1][cp[1]] !== 0) {
+                        curSerface++;
+                    }
+                }
+                if (curSerface > serface) {
+                    properPose = [curPose];
+                    properPosition = [finishPosition];
+                    serface = curSerface;
+                } else if (curSerface === serface) {
+                    properPose.push(curPose);
+                    properPosition.push(finishPosition);
+                }
+            }
         }
     }
+    var choose = Math.floor(Math.random() * properPose.length);
+    this.setPose(properPose[choose]);
+    this.setPosition(properPosition[choose]);
 }
 
 
@@ -447,12 +482,12 @@ if (AIplayer) {
 function main() {
     if (onePiece === undefined || !onePiece.moveDownAndCheck()) {
         onePiece = nextPiece;
+        if (AIplayer) {
+            onePiece.setProperPositionAndPose();
+            timeIntervalDuring = 100;
+        }
         onePiece.init();
         nextPiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([Math.ceil(Math.random() * w), 0], Math.floor(Math.random() * 4));
-        if (AIplayer) {
-            nextPiece.setProperPositionAndPose();
-            timeIntervalDuring = 200;
-        }
     }
 }
 function startGame() {
