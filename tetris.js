@@ -200,6 +200,7 @@ Piece.prototype.gameOver = function () {
     clearInterval(timeInterval);
     timeOut = setTimeout(startGame, 1000);
     document.onkeydown = null;
+    Piece.prototype.scoreDiv = undefined;
     if (this.gameOverDiv === undefined) {
         Piece.prototype.gameOverDiv = document.createElement("div");
         Piece.prototype.gameOverDiv.id = "gameover";
