@@ -121,16 +121,27 @@ Piece.prototype.init = function () {
         var keycode = e.which;
         switch (keycode) {
             case 38://up
+            case 87://W
                 _this.turnLeft();
                 break;
             case 37://left
+            case 65://A
                 _this.moveLeft();
                 break;
             case 39://right
+            case 68://D
                 _this.moveRight();
                 break;
             case 40://down
+            case 83://S
                 while (_this.moveDownAndCheck());
+                break;
+            case 82://R
+                _this.gameOver();
+                startGame();
+                break;
+            case 84://T
+                Piece.prototype.AIplayer = !Piece.prototype.AIplayer;
                 break;
             default:
         }
@@ -197,10 +208,11 @@ Piece.prototype.initState = function (force) {
     }
 }
 Piece.prototype.gameOver = function () {
-    clearInterval(timeInterval);
+    clearTimeout(timeOut);
     timeOut = setTimeout(startGame, 1000);
     document.onkeydown = null;
     Piece.prototype.scoreDiv = undefined;
+    Piece.prototype.score = 0;
     if (this.gameOverDiv === undefined) {
         Piece.prototype.gameOverDiv = document.createElement("div");
         Piece.prototype.gameOverDiv.id = "gameover";
@@ -478,12 +490,12 @@ Piece.prototype.setProperPositionAndPose = function () {
                 }
                 if (curSerface > serface) {
                     properPose = [curPose];
-                    properPosition = [[finishPosition[0],finishPosition[1]-3]];
+                    properPosition = [[finishPosition[0], finishPosition[1] - 3]];
                     //properPosition = [[i, 0]];
                     serface = curSerface;
                 } else if (curSerface === serface) {
                     properPose.push(curPose);
-                    properPosition.push([finishPosition[0],finishPosition[1]-3]);
+                    properPosition.push([finishPosition[0], finishPosition[1] - 3]);
                     //properPosition.push([i, 0]);
                 }
             }
@@ -493,6 +505,7 @@ Piece.prototype.setProperPositionAndPose = function () {
     this.setPose(properPose[choose]);
     this.setPosition(properPosition[choose]);
 }
+Piece.prototype.AIplayer = true;
 
 
 function getRotatedShape(oneShape) {
@@ -568,37 +581,42 @@ function PieceBlock(position, pose) {
 }
 extend(PieceBlock, Piece);
 
-var timeInterval;
 var timeOut;
-var timeIntervalDuring = 500;
-var timeIntervalDuringAIplayer = 100;
-var AIplayer = true;
+var timeOut;
+var timeOutDuring;
+var timeOutDuringHumanPlayer = 500;
+var timeOutDuringAIplayer = 100;
 var pieceTypes = [PieceLine, PieceLine, PieceT, PieceLLeft, PieceLRight, PieceZLeft, PieceZRight, PieceBlock];
 var onePiece;
 var nextPiece;
 function main() {
     if (onePiece === undefined || !onePiece.moveDownAndCheck()) {
         onePiece = nextPiece;
-        if (AIplayer) {
+        if (Piece.prototype.AIplayer) {
             onePiece.setProperPositionAndPose();
-            timeIntervalDuring = timeIntervalDuringAIplayer;
+            timeOutDuring = timeOutDuringAIplayer;
+        } else {
+            timeOutDuring = timeOutDuringHumanPlayer;
         }
         onePiece.init();
         nextPiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([Math.ceil(Math.random() * w), 0], Math.floor(Math.random() * 4));
     }
+    timeOut = setTimeout(main, timeOutDuring);
 }
 function startGame() {
     clearTimeout(timeOut);
     container.innerHTML = "";
     nextPiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([Math.ceil(Math.random() * w), 0], Math.floor(Math.random() * 4));
-    if (AIplayer) {
+    if (Piece.prototype.AIplayer) {
         nextPiece.setProperPositionAndPose();
-        timeIntervalDuring = timeIntervalDuringAIplayer;
+        timeOutDuring = timeOutDuringAIplayer;
+    } else {
+        timeOutDuring = timeOutDuringHumanPlayer;
     }
     if (onePiece) {
         onePiece.initState(true);
         onePiece = undefined;
     }
-    timeInterval = setInterval(main, timeIntervalDuring);
+    timeOut = setTimeout(main, timeOutDuring);
 }
 window.onload = startGame;
