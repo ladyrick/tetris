@@ -490,13 +490,13 @@ Piece.prototype.setProperPositionAndPose = function () {
                 }
                 if (curSerface > serface) {
                     properPose = [curPose];
-                    properPosition = [[finishPosition[0], finishPosition[1] - 3]];
-                    //properPosition = [[i, 0]];
+                    //properPosition = [[finishPosition[0], finishPosition[1] - 3]];
+                    properPosition = [[i, 0]];
                     serface = curSerface;
                 } else if (curSerface === serface) {
                     properPose.push(curPose);
-                    properPosition.push([finishPosition[0], finishPosition[1] - 3]);
-                    //properPosition.push([i, 0]);
+                    //properPosition.push([finishPosition[0], finishPosition[1] - 3]);
+                    properPosition.push([i, 0]);
                 }
             }
         }
