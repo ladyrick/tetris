@@ -410,6 +410,7 @@ Piece.prototype.moveRight = function () {
         return false;
     }
 }
+Piece.prototype.fallDownMethod = 2;
 Piece.prototype.setProperPositionAndPose = function () {
     var shape = this.getShape();
     var serface = -Infinity;
@@ -490,12 +491,36 @@ Piece.prototype.setProperPositionAndPose = function () {
                 }
                 if (curSerface > serface) {
                     properPose = [curPose];
-                    //properPosition = [[finishPosition[0], finishPosition[1] - 3]];
+                    switch (Piece.prototype.fallDownMethod) {
+                        case 1:
+                            properPosition = [[finishPosition[0], 0]];
+                            break;
+                        case 2:
+                            properPosition = [[finishPosition[0], finishPosition[1] - 3]];
+                            break;
+                        case 3:
+                            properPosition = [[finishPosition[0], finishPosition[1]]];
+                            break;
+                        default:
+                            properPosition = [[finishPosition[0], finishPosition[1] - 3]];
+                    }
                     properPosition = [[i, 0]];
                     serface = curSerface;
                 } else if (curSerface === serface) {
                     properPose.push(curPose);
-                    //properPosition.push([finishPosition[0], finishPosition[1] - 3]);
+                    switch (Piece.prototype.fallDownMethod) {
+                        case 1:
+                            properPosition.push([finishPosition[0], 0]);
+                            break;
+                        case 2:
+                            properPosition.push([finishPosition[0], finishPosition[1] - 3]);
+                            break;
+                        case 3:
+                            properPosition.push([finishPosition[0], finishPosition[1]]);
+                            break;
+                        default:
+                            properPosition.push([finishPosition[0], finishPosition[1] - 3]);
+                    }
                     properPosition.push([i, 0]);
                 }
             }
@@ -618,5 +643,12 @@ function startGame() {
         onePiece = undefined;
     }
     timeOut = setTimeout(main, timeOutDuring);
+}
+window.wallpaperPropertiListener = {
+    applyUserProperties: function (properties) {
+        if (properties.fallDownMethod) {
+            Piece.prototype.fallDownMethod = properties.fallDownMethod.value;
+        }
+    }
 }
 window.onload = startGame;
