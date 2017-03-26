@@ -410,7 +410,7 @@ Piece.prototype.moveRight = function () {
         return false;
     }
 }
-Piece.prototype.fallDownMethod = 2;
+Piece.prototype.fallDownMethod = 3;
 Piece.prototype.setProperPositionAndPose = function () {
     var shape = this.getShape();
     var serface = -Infinity;
@@ -445,12 +445,14 @@ Piece.prototype.setProperPositionAndPose = function () {
                     break;
                 }
             }
+            //get the finish position
             if (finishPosition !== undefined) {
                 var curSerface = 0;
                 var curPositions = [];
                 for (var block in curShape) {
                     curPositions.push([curShape[block][0] + finishPosition[0], curShape[block][1] + finishPosition[1]]);
                 }
+                //get the final positions of all the blocks
                 var shapeLines = [];
                 for (var block in curPositions) {
                     var cp = curPositions[block];
@@ -458,11 +460,13 @@ Piece.prototype.setProperPositionAndPose = function () {
                         shapeLines[cp[1]] = [];
                     }
                     shapeLines[cp[1]].push(cp);
+
                     if (cp[0] === 1) {
                         curSerface += borderWeight;
                     } else if (this.state[cp[0] - 1][cp[1]] !== 0) {
                         curSerface++;
                     }
+
                     if (cp[1] === h || this.state[cp[0]][cp[1] + 1] !== 0) {
                         curSerface++;
                     } else if (cp[1] < h && curPositions.findIndex(function (x) { return x[0] === cp[0] && x[1] === cp[1] + 1; }) === -1) {
@@ -489,6 +493,8 @@ Piece.prototype.setProperPositionAndPose = function () {
                         }
                     }
                 }
+
+                curSerface = Math.min(curSerface, curSerface * finishPosition[1] / h);
                 if (curSerface > serface) {
                     properPose = [curPose];
                     switch (Piece.prototype.fallDownMethod) {
