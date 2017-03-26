@@ -417,7 +417,7 @@ Piece.prototype.setProperPositionAndPose = function () {
     var borderWeight = 0.7;
     var holeWeight = 3;
     var clearLineWeight = 5;
-    var rowNumWeight = [20, 10, 5, 0, 0, 0];
+    var rowNumWeight = [10, 5, 0, 0];
     var properPose = [];
     var properPosition = [];
     for (var curPose in shape) {
@@ -495,7 +495,7 @@ Piece.prototype.setProperPositionAndPose = function () {
                     }
                 }
 
-                curSerface -= rowNumWeight[Math.floor((finishPosition[1] - 1) / h * 6)];
+                curSerface -= rowNumWeight[Math.floor((finishPosition[1] - 1) / h * 4)];
                 if (curSerface > serface) {
                     properPose = [curPose];
                     switch (Piece.prototype.fallDownMethod) {
