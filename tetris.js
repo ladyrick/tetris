@@ -9,6 +9,8 @@ var container;
 var styleDOM;
 var previewOffset = [2, 6];
 var blockGapWidth = 4;
+var bgColor = [0x1e, 0x1e, 0x1e];
+var frameworkColor = [0xd2, 0x69, 0x1e];
 function getClassName(x, y) {
     return "pos_" + (x >= 0 && x < 10 ? "0" + x : x) + "_" + (y >= 0 && y < 10 ? "0" + y : y);
 }
@@ -17,12 +19,12 @@ function initWindow() {
     hPixels = totalHeight;
     /*构造一个style节点。屏幕左上角为坐标(0,0)，横向变x，纵向变y。*/
     var style = "";
-    style += "body{font-size:100%;background-color:#1e1e1e;}\n";
+    style += "body{font-size:100%;background-color:rgb(" + bgColor[0] + "," + bgColor[1] + "," + bgColor[2] + ");}\n";
     style += "#container{position:fixed;left:50%;right:50%;top:50%;bottom:50%;";
     style += "width:" + wPixels + "px;height:" + hPixels + "px;";
     style += "margin-left:-" + (wPixels / 2 + containerBorderSize) + "px;";
     style += "margin-top:-" + (hPixels / 2 + containerBorderSize) + "px;";
-    style += "border:solid chocolate " + containerBorderSize + "px;}\n";
+    style += "border:solid rgb(" + frameworkColor[0] + "," + frameworkColor[1] + "," + frameworkColor[2] + ") " + containerBorderSize + "px;}\n";
     style += "#container div{";
     style += "position:absolute;";
     style += "transition:0.1s;transition-timing-function:linear;}\n";
@@ -185,7 +187,11 @@ Piece.prototype.togglePreview = function () {
     if (this.preDivs === undefined) {
         this.preDivs = [];
         if (this.color === undefined) {
-            this.color = "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")";
+            var rgb = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
+            while ((Math.abs(rgb[0] - bgColor[0]) + Math.abs(rgb[1] - bgColor[1]) + Math.abs(rgb[1] - bgColor[1])) < 192) {
+                rgb = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
+            }
+            this.color = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
         }
         var _this = this;
         var prePositions = [];
@@ -321,7 +327,11 @@ Piece.prototype.updatePiece = function () {
     if (this.divs === undefined) {
         this.divs = [];
         if (this.color === undefined) {
-            this.color = "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")";
+            var rgb = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
+            while ((Math.abs(rgb[0] - bgColor[0]) + Math.abs(rgb[1] - bgColor[1]) + Math.abs(rgb[1] - bgColor[1])) < 192) {
+                rgb = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
+            }
+            this.color = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
         }
         var _this = this;
         positions.forEach(function (p) {
@@ -699,6 +709,26 @@ window.wallpaperPropertyListener = {
         }
         if (properties.screenWidth) {
             startGame(h, properties.screenWidth.value);
+        }
+        if (properties.colorBackground) {
+            var c = properties.colorBackground.value.split(" ");
+            bgColor = [c[0] * 255, c[1] * 255, c[2] * 255];
+            var style = "background-color:rgb(" + bgColor[0] + "," + bgColor[1] + "," + bgColor[2] + ");";
+            try {
+                document.getElementsByTagName("body")[0].setAttribute("style", style);
+            } catch (e) {
+                console.warn("can't find body.");
+            }
+        }
+        if (properties.colorframework) {
+            var c = properties.colorframework.value.split(" ");
+            frameworkColor = [c[0] * 255, c[1] * 255, c[2] * 255];
+            var style = "border-color:rgb(" + frameworkColor[0] + "," + frameworkColor[1] + "," + frameworkColor[2] + ");";
+            try {
+                container.setAttribute("style", style);
+            } catch (e) {
+                console.warn("can't find container.");
+            }
         }
     }
 }

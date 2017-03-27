@@ -5,6 +5,18 @@
 	{
 		"properties" : 
 		{
+			"colorBackground" : 
+			{
+				"text" : "背景颜色",
+				"type" : "color",
+				"value" : "0.11764705882352941 0.11764705882352941 0.11764705882352941"
+			},
+			"colorframework" : 
+			{
+				"text" : "框架颜色",
+				"type" : "color",
+				"value" : "0.8235294117647058 0.4117647058823529 0.11764705882352941"
+			},
 			"fallDownMethod" : 
 			{
 				"options" : 
