@@ -6,7 +6,7 @@ var containerBorderSize = 3;
 var wPixels = totalHeight / h * w;
 var hPixels = totalHeight;
 var container;
-var previewPosition = [13, 6];
+var previewOffset = [2, 6];
 var blockGapWidth = 4;
 function getClassName(x, y) {
     return "pos_" + (x >= 0 && x < 10 ? "0" + x : x) + "_" + (y >= 0 && y < 10 ? "0" + y : y);
@@ -39,12 +39,12 @@ function getClassName(x, y) {
             }
         }
     }
-    for (var i = previewPosition[0]; i < previewPosition[0] + 4; i++) {
-        for (var j = previewPosition[1]; j > previewPosition[1] - 4; j--) {
+    for (var i = -previewOffset[0] - 2; i <= -previewOffset[0] + 1; i++) {
+        for (var j = previewOffset[1]; j > previewOffset[1] - 4; j--) {
             style += "." + getClassName(i, j) + "{";
             style += "width:" + (wPixels / w - blockGapWidth) + "px;";
             style += "height:" + (hPixels / h - blockGapWidth) + "px;";
-            style += "margin-left:" + (wPixels / w * (i - 1) + blockGapWidth / 2) + "px;margin-top:" + (hPixels / h * (j - 1) + blockGapWidth / 2) + "px;}\n";
+            style += "margin-left:" + (wPixels / w * (i - 1) - blockGapWidth / 2) + "px;margin-top:" + (hPixels / h * (j - 1) + blockGapWidth / 2) + "px;}\n";
         }
     }
 
@@ -153,15 +153,16 @@ Piece.prototype.setScore = function () {
     if (Piece.prototype.scoreDiv === undefined) {
         var scoreContainerDiv = document.createElement("div");
         var style = "";
-        style += "width:" + (wPixels / 2.5) + "px;";
-        style += "height:" + (hPixels / 5) + "px;";
-        style += "margin-left:-" + ((wPixels / 2.5) + containerBorderSize) + "px;";
-        style += "margin-top:" + (hPixels / 6) + "px;";
-        scoreContainerDiv.setAttribute("style", style);
-        var scoreBanner = document.createElement("p");
-        style = "text-align:center;font-size:2em;margin:20px auto;font-weight:bolder;user-select:none;";
+        style += "margin-left:" + (wPixels / w * (w + previewOffset[0] - 1) + blockGapWidth / 2) + "px;";
+        style += "margin-top:" + (hPixels / h * (previewOffset[1] - 3) + blockGapWidth / 2) + "px;";
+        style += "text-align:center;line-height:100%;font-weight:bolder;user-select:none;";
         style += "color:#BFBFBF;";
+        style += "font-size:" + (hPixels / h) + "px;";
         style += 'font-family:"Arial","Microsoft YaHei","黑体",sans-serif;';
+        scoreContainerDiv.setAttribute("style", style);
+
+        var scoreBanner = document.createElement("p");
+        style = "margin:" + hPixels / h / 2 + "px 0px 0px 0px;";
         scoreBanner.setAttribute("style", style);
         scoreBanner.innerText = "SCORE";
         Piece.prototype.scoreDiv = document.createElement("p");
@@ -181,13 +182,23 @@ Piece.prototype.togglePreview = function () {
             this.color = "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")";
         }
         var _this = this;
+        var prePositions = [];
         this.getShape()[this.getPose()].forEach(function (p) {
+            prePositions.push([p[0] - previewOffset[0] - 2, p[1] + previewOffset[1]]);
+        });
+        var rightOffset = 4;
+        for (var p in prePositions) {
+            if (-prePositions[p][0] - 1 < rightOffset) {
+                rightOffset = -prePositions[p][0] - 1;
+            }
+        }
+        prePositions.forEach(function (x) {
             var newPreDiv = document.createElement("div");
-            newPreDiv.setAttribute("class", getClassName(p[0] + 13, p[1] + 6));
+            newPreDiv.setAttribute("class", getClassName(x[0]+rightOffset,x[1]));
             newPreDiv.setAttribute("style", "background-color:" + _this.color + ";");
             container.appendChild(newPreDiv);
             _this.preDivs.push(newPreDiv);
-        })
+        });
     } else {
         this.preDivs.forEach(function (x) {
             container.removeChild(x);
