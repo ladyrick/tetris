@@ -3,15 +3,18 @@ var w = 11;
 var h = 20;
 var totalHeight = 800;
 var containerBorderSize = 3;
-var wPixels = totalHeight / h * w;
-var hPixels = totalHeight;
+var wPixels;
+var hPixels;
 var container;
+var styleDOM;
 var previewOffset = [2, 6];
 var blockGapWidth = 4;
 function getClassName(x, y) {
     return "pos_" + (x >= 0 && x < 10 ? "0" + x : x) + "_" + (y >= 0 && y < 10 ? "0" + y : y);
 }
-(function () {
+function initWindow() {
+    wPixels = totalHeight / h * w;
+    hPixels = totalHeight;
     /*构造一个style节点。屏幕左上角为坐标(0,0)，横向变x，纵向变y。*/
     var style = "";
     style += "body{font-size:100%;background-color:#1e1e1e;}\n";
@@ -47,14 +50,17 @@ function getClassName(x, y) {
             style += "margin-left:" + (wPixels / w * (i - 1) - blockGapWidth / 2) + "px;margin-top:" + (hPixels / h * (j - 1) + blockGapWidth / 2) + "px;}\n";
         }
     }
-
-    var styleDOM = document.createElement("style");
+    if (styleDOM === undefined) {
+        styleDOM = document.createElement("style");
+        document.getElementsByTagName("head")[0].appendChild(styleDOM);
+    }
     styleDOM.innerHTML = style;
-    document.getElementsByTagName("head")[0].appendChild(styleDOM);
-    container = document.createElement("div");
-    container.id = "container";
-    document.getElementsByTagName("body")[0].appendChild(container);
-})();
+    if (container === undefined) {
+        container = document.createElement("div");
+        container.id = "container";
+        document.getElementsByTagName("body")[0].appendChild(container);
+    }
+};
 
 
 
@@ -137,7 +143,7 @@ Piece.prototype.init = function () {
                 while (_this.moveDownAndCheck());
                 break;
             case 82://R
-                _this.gameOver();
+                // _this.gameOver();
                 startGame();
                 break;
             case 84://T
@@ -630,7 +636,6 @@ function PieceBlock(position, pose) {
 extend(PieceBlock, Piece);
 
 var timeOut;
-var timeOut;
 var timeOutDuring;
 var timeOutDuringHumanPlayer = 500;
 var timeOutDuringAIplayer = 100;
@@ -651,9 +656,26 @@ function main() {
     }
     timeOut = setTimeout(main, timeOutDuring);
 }
-function startGame() {
+function startGame(height, width) {
+    var totally = false;
+    if (typeof height === "number") {
+        h = Math.max(height, 15);
+        totally = true;
+    }
+    if (typeof width === "number") {
+        w = Math.max(width, 10);
+        totally = true;
+    }
+    if (totally) {
+        initWindow();
+        Piece.prototype.state = [];
+    }
+    Piece.prototype.scoreDiv = undefined;
     clearTimeout(timeOut);
     container.innerHTML = "";
+    Piece.prototype.score = 0;
+    document.onkeydown = null;
+
     nextPiece = new pieceTypes[Math.floor(Math.random() * pieceTypes.length)]([Math.ceil(Math.random() * w), 0], Math.floor(Math.random() * 4));
     if (Piece.prototype.AIplayer) {
         nextPiece.setProperPositionAndPose();
@@ -673,9 +695,11 @@ window.wallpaperPropertyListener = {
             Piece.prototype.fallDownMethod = properties.fallDownMethod.value;
         }
         if (properties.screenHeight) {
+            startGame(properties.screenHeight.value, w);
         }
         if (properties.screenWidth) {
+            startGame(h, properties.screenWidth.value);
         }
     }
 }
-window.onload = startGame;
+window.onload = function () { startGame(h, w) };
