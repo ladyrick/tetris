@@ -672,6 +672,10 @@ window.wallpaperPropertyListener = {
         if (properties.fallDownMethod) {
             Piece.prototype.fallDownMethod = properties.fallDownMethod.value;
         }
+        if (properties.screenHeight) {
+        }
+        if (properties.screenWidth) {
+        }
     }
 }
 window.onload = startGame;

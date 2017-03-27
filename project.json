@@ -32,6 +32,22 @@
 				"text" : "ui_browse_properties_scheme_color",
 				"type" : "color",
 				"value" : "0 0 0"
+			},
+			"screenHeight" : 
+			{
+				"max" : 80,
+				"min" : 10,
+				"text" : "场景高度",
+				"type" : "slider",
+				"value" : 20
+			},
+			"screenWidth" : 
+			{
+				"max" : 160,
+				"min" : 10,
+				"text" : "场景宽度",
+				"type" : "slider",
+				"value" : 11
 			}
 		}
 	},
