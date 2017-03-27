@@ -1,6 +1,6 @@
 "use strict"
-var w = 40;
-var h = 30;
+var w = 11;
+var h = 20;
 var totalHeight = 800;
 var containerBorderSize = 3;
 var wPixels = totalHeight / h * w;
@@ -376,7 +376,7 @@ Piece.prototype.moveDownAndCheck = function () {
             }
         }
         if (this.rowsToDelete.length > 0) {
-            Piece.prototype.score += (this.rowsToDelete.length + 1) * this.rowsToDelete.length * 5;
+            Piece.prototype.score += (this.rowsToDelete.length + 1) * this.rowsToDelete.length * w / 2;
             this.setScore();
             var skipRowNum = 0;
             for (var j = h; j >= 1; j--) {
