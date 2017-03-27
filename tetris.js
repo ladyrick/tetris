@@ -497,12 +497,14 @@ Piece.prototype.setProperPositionAndPose = function () {
 
                     if (cp[1] === h || this.state[cp[0]][cp[1] + 1] !== 0) {
                         curSerface++;
-                    } else if (cp[1] < h && curPositions.findIndex(function (x) { return x[0] === cp[0] && x[1] === cp[1] + 1; }) === -1) {
+                    }
+                    if (cp[1] < h && curPositions.findIndex(function (x) { return x[0] === cp[0] && x[1] === cp[1] + 1; }) === -1) {
                         var t;
                         for (t = 1; this.state[cp[0]][cp[1] + t] === 0; t++) {
                             curSerface -= holeWeight;
                         }
-                        for (; t <= h; t++) {
+                        t++;
+                        for (; cp[1] + t <= h; t++) {
                             if (this.state[cp[0]][cp[1] + t] === 0) {
                                 curSerface -= holeWeight;
                                 break;
