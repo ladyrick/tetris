@@ -1,6 +1,6 @@
 "use strict"
-var w = 11;
-var h = 20;
+var w = 40;
+var h = 30;
 var totalHeight = 800;
 var containerBorderSize = 3;
 var wPixels = totalHeight / h * w;
@@ -194,7 +194,7 @@ Piece.prototype.togglePreview = function () {
         }
         prePositions.forEach(function (x) {
             var newPreDiv = document.createElement("div");
-            newPreDiv.setAttribute("class", getClassName(x[0]+rightOffset,x[1]));
+            newPreDiv.setAttribute("class", getClassName(x[0] + rightOffset, x[1]));
             newPreDiv.setAttribute("style", "background-color:" + _this.color + ";");
             container.appendChild(newPreDiv);
             _this.preDivs.push(newPreDiv);
@@ -482,8 +482,15 @@ Piece.prototype.setProperPositionAndPose = function () {
                     if (cp[1] === h || this.state[cp[0]][cp[1] + 1] !== 0) {
                         curSerface++;
                     } else if (cp[1] < h && curPositions.findIndex(function (x) { return x[0] === cp[0] && x[1] === cp[1] + 1; }) === -1) {
-                        for (var t = 1; this.state[cp[0]][cp[1] + t] === 0; t++) {
+                        var t;
+                        for (t = 1; this.state[cp[0]][cp[1] + t] === 0; t++) {
                             curSerface -= holeWeight;
+                        }
+                        for (; t <= h; t++) {
+                            if (this.state[cp[0]][cp[1] + t] === 0) {
+                                curSerface -= holeWeight;
+                                break;
+                            }
                         }
                     }
                     if (cp[0] === w) {
