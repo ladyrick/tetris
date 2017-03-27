@@ -649,7 +649,7 @@ function startGame() {
     }
     timeOut = setTimeout(main, timeOutDuring);
 }
-window.wallpaperPropertiListener = {
+window.wallpaperPropertyListener = {
     applyUserProperties: function (properties) {
         if (properties.fallDownMethod) {
             Piece.prototype.fallDownMethod = properties.fallDownMethod.value;
