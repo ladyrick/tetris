@@ -539,7 +539,7 @@ Piece.prototype.setProperPositionAndPose = function () {
                         }
                     }
                 }
-
+                curSerface += finishPosition[1] / h / 2;
                 curSerface -= rowNumWeight[Math.floor((finishPosition[1] - 1) / h * 4)];
                 if (curSerface > serface) {
                     properPose = [curPose];
