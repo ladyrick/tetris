@@ -1,5 +1,5 @@
 "use strict"
-var w = 11;
+var w = 110;
 var h = 20;
 var maxWidth = 1000;
 var maxHeight = 600;
@@ -451,6 +451,7 @@ Piece.prototype.setProperPositionAndPose = function () {
     var holeWeight = 3;
     var clearLineWeight = 5;
     var rowNumWeight = [10, 5, 0, 0];
+    var bottomWeight = 1.1;
     var properPose = [];
     var properPosition = [];
     for (var curPose in shape) {
@@ -501,7 +502,9 @@ Piece.prototype.setProperPositionAndPose = function () {
                         curSerface++;
                     }
 
-                    if (cp[1] === h || this.state[cp[0]][cp[1] + 1] !== 0) {
+                    if (cp[1] === h) {
+                        curSerface += bottomWeight;
+                    } else if (this.state[cp[0]][cp[1] + 1] !== 0) {
                         curSerface++;
                     }
                     if (cp[1] < h && curPositions.findIndex(function (x) { return x[0] === cp[0] && x[1] === cp[1] + 1; }) === -1) {
