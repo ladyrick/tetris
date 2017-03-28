@@ -502,9 +502,7 @@ Piece.prototype.setProperPositionAndPose = function () {
                         curSerface++;
                     }
 
-                    if (cp[1] === h) {
-                        curSerface += bottomWeight;
-                    } else if (this.state[cp[0]][cp[1] + 1] !== 0) {
+                    if (cp[1] === h || this.state[cp[0]][cp[1] + 1] !== 0) {
                         curSerface++;
                     }
                     if (cp[1] < h && curPositions.findIndex(function (x) { return x[0] === cp[0] && x[1] === cp[1] + 1; }) === -1) {
@@ -539,7 +537,7 @@ Piece.prototype.setProperPositionAndPose = function () {
                         }
                     }
                 }
-                curSerface += finishPosition[1] / h / 2;
+                curSerface += finishPosition[1] / h / 10;
                 curSerface -= rowNumWeight[Math.floor((finishPosition[1] - 1) / h * 4)];
                 if (curSerface > serface) {
                     properPose = [curPose];
