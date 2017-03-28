@@ -738,7 +738,12 @@ window.wallpaperPropertyListener = {
                 console.warn("can't find container.");
             }
         }
-        if (properties.maxHeight || properties.maxWidth) {
+        if (properties.maxHeight) {
+            maxHeight = parseInt(properties.maxHeight.value);
+            startGame(w, h);
+        }
+        if (properties.maxWidth) {
+            maxWidth = parseInt(properties.maxWidth.value);
             startGame(w, h);
         }
     }

@@ -38,6 +38,22 @@
 				"type" : "combo",
 				"value" : 2
 			},
+			"maxHeight" : 
+			{
+				"max" : 3000,
+				"min" : 400,
+				"text" : "最大高度",
+				"type" : "slider",
+				"value" : 720
+			},
+			"maxWidth" : 
+			{
+				"max" : 5000,
+				"min" : 600,
+				"text" : "最大宽度",
+				"type" : "slider",
+				"value" : 1280
+			},
 			"schemecolor" : 
 			{
 				"order" : 0,
