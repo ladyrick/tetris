@@ -1,7 +1,8 @@
 "use strict"
 var w = 11;
 var h = 20;
-var totalHeight = 800;
+var maxHeight = 600;
+var maxWidth = 1000;
 var containerBorderSize = 3;
 var wPixels;
 var hPixels;
@@ -15,8 +16,13 @@ function getClassName(x, y) {
     return "pos_" + (x >= 0 && x < 10 ? "0" + x : x) + "_" + (y >= 0 && y < 10 ? "0" + y : y);
 }
 function initWindow() {
-    wPixels = totalHeight / h * w;
-    hPixels = totalHeight;
+    wPixels = maxHeight / h * w;
+    if (wPixels > maxWidth) {
+        wPixels = maxWidth;
+        hPixels = wPixels / w * h;
+    } else {
+        hPixels = maxHeight;
+    }
     /*构造一个style节点。屏幕左上角为坐标(0,0)，横向变x，纵向变y。*/
     var style = "";
     style += "body{font-size:100%;background-color:rgb(" + bgColor[0] + "," + bgColor[1] + "," + bgColor[2] + ");}\n";
