@@ -1,8 +1,8 @@
 "use strict"
 var w = 11;
 var h = 20;
-var maxHeight = 600;
 var maxWidth = 1000;
+var maxHeight = 600;
 var containerBorderSize = 3;
 var wPixels;
 var hPixels;
@@ -674,14 +674,14 @@ function main() {
     }
     timeOut = setTimeout(main, timeOutDuring);
 }
-function startGame(height, width) {
+function startGame(width, height) {
     var totally = false;
-    if (typeof height === "number") {
-        h = Math.max(height, 15);
-        totally = true;
-    }
     if (typeof width === "number") {
         w = Math.max(width, 10);
+        totally = true;
+    }
+    if (typeof height === "number") {
+        h = Math.max(height, 15);
         totally = true;
     }
     if (totally) {
@@ -713,10 +713,10 @@ window.wallpaperPropertyListener = {
             Piece.prototype.fallDownMethod = properties.fallDownMethod.value;
         }
         if (properties.screenHeight) {
-            startGame(properties.screenHeight.value, w);
+            startGame(w, properties.screenHeight.value);
         }
         if (properties.screenWidth) {
-            startGame(h, properties.screenWidth.value);
+            startGame(properties.screenWidth.value, h);
         }
         if (properties.colorBackground) {
             var c = properties.colorBackground.value.split(" ");
@@ -738,6 +738,9 @@ window.wallpaperPropertyListener = {
                 console.warn("can't find container.");
             }
         }
+        if (properties.maxHeight || properties.maxWidth) {
+            startGame(w, h);
+        }
     }
 }
-window.onload = function () { startGame(h, w) };
+window.onload = function () { startGame(w, h) };
