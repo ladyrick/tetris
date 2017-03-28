@@ -451,7 +451,6 @@ Piece.prototype.setProperPositionAndPose = function () {
     var holeWeight = 3;
     var clearLineWeight = 5;
     var rowNumWeight = [10, 5, 0, 0];
-    var bottomWeight = 1.1;
     var properPose = [];
     var properPosition = [];
     for (var curPose in shape) {
