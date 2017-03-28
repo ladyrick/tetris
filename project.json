@@ -81,7 +81,7 @@
 	},
 	"monetization" : false,
 	"preview" : "preview.jpg",
-	"tags" : [ "Game" ],
+	"tags" : [ "Game", "Abstract", "Relaxing" ],
 	"title" : "Auto-played Tetris(自动玩的俄罗斯方块)",
 	"type" : "web",
 	"visibility" : "public",
