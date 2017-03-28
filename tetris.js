@@ -1,5 +1,5 @@
 "use strict"
-var w = 110;
+var w = 40;
 var h = 20;
 var maxWidth = 1000;
 var maxHeight = 600;
@@ -443,7 +443,7 @@ Piece.prototype.moveRight = function () {
         return false;
     }
 }
-Piece.prototype.fallDownMethod = 3;
+Piece.prototype.fallDownMethod = 1;
 Piece.prototype.setProperPositionAndPose = function () {
     var shape = this.getShape();
     var serface = -Infinity;
