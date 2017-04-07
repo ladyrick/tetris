@@ -746,6 +746,22 @@ window.wallpaperPropertyListener = {
             maxWidth = parseInt(properties.maxWidth.value);
             startGame(w, h);
         }
+        if (properties.autoAdjustFullscreen && properties.autoAdjustFullscreen.value) {
+            maxHeight = 2 * window.screen.availHeight - window.screen.height;
+            maxWidth = 2 * window.screen.availWidth - window.screen.width;
+            w = Math.floor(maxWidth / 22.5);
+            switch (true) {
+                case w < 60:
+                    w = 60;
+                    break;
+                case w > 80:
+                    w = 80;
+                    break;
+                default:
+            }
+            h = Math.floor(maxHeight / 22.5);
+            startGame(w, h);
+        }
     }
 }
 window.onload = function () { startGame(w, h) };
