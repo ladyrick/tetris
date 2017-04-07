@@ -46,6 +46,7 @@
 			},
 			"maxHeight" : 
 			{
+				"editable" : true,
 				"max" : 3000,
 				"min" : 400,
 				"text" : "最大高度",
@@ -54,6 +55,7 @@
 			},
 			"maxWidth" : 
 			{
+				"editable" : true,
 				"max" : 5000,
 				"min" : 600,
 				"text" : "最大宽度",
@@ -69,6 +71,7 @@
 			},
 			"screenHeight" : 
 			{
+				"editable" : true,
 				"max" : 80,
 				"min" : 10,
 				"text" : "场景高度",
@@ -77,6 +80,7 @@
 			},
 			"screenWidth" : 
 			{
+				"editable" : true,
 				"max" : 160,
 				"min" : 10,
 				"text" : "场景宽度",

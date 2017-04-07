@@ -713,10 +713,12 @@ window.wallpaperPropertyListener = {
             Piece.prototype.fallDownMethod = properties.fallDownMethod.value;
         }
         if (properties.screenHeight) {
-            startGame(w, properties.screenHeight.value);
+            h = Math.max(parseInt(properties.screenHeight.value), 10);
+            startGame(w, h);
         }
         if (properties.screenWidth) {
-            startGame(properties.screenWidth.value, h);
+            w = Math.max(parseInt(properties.screenWidth.value), 10);
+            startGame(w, h);
         }
         if (properties.colorBackground) {
             var c = properties.colorBackground.value.split(" ");
@@ -739,11 +741,11 @@ window.wallpaperPropertyListener = {
             }
         }
         if (properties.maxHeight) {
-            maxHeight = parseInt(properties.maxHeight.value);
+            maxHeight = Math.max(parseInt(properties.maxHeight.value), 400);
             startGame(w, h);
         }
         if (properties.maxWidth) {
-            maxWidth = parseInt(properties.maxWidth.value);
+            maxWidth = Math.max(parseInt(properties.maxWidth.value), 600);
             startGame(w, h);
         }
         if (properties.autoAdjustFullscreen && properties.autoAdjustFullscreen.value) {
