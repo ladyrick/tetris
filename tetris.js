@@ -759,7 +759,7 @@ window.wallpaperPropertyListener = {
                     break;
                 default:
             }
-            h = Math.floor(maxHeight / 22.5);
+            h = Math.floor(maxHeight / maxWidth * w);
             startGame(w, h);
         }
     }
